@@ -190,9 +190,9 @@ impl<S: Size> Cid<S> {
   /// # Example
   ///
   /// ```
-  /// use cid::Cid;
+  /// use sp_cid::Cid;
   /// use multibase::Base;
-  /// use multihash::{
+  /// use sp_multihash::{
   ///   Code,
   ///   MultihashDigest,
   /// };
@@ -283,7 +283,10 @@ impl<S: Size> TryFrom<&str> for Cid<S> {
     }
 
     let decoded = if Version::is_v0_str(hash) {
-      Base::Base58Btc.decode(hash).unwrap()
+      match Base::Base58Btc.decode(hash) {
+        Ok(d) => d,
+        Err(_) => return Err(Error::ParsingError),
+      }
     }
     else {
       match multibase::decode(hash) {

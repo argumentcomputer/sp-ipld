@@ -324,6 +324,7 @@ mod tests {
         let hash = Code::Sha2_256.digest(b"hello world");
         let mut buf = ByteCursor::new([0u8; 35].to_vec());
         hash.write(&mut buf).unwrap();
+        buf.set_position(0);
         let hash2 = Multihash::read(&mut buf).unwrap();
         assert_eq!(hash, hash2);
     }
