@@ -32,12 +32,12 @@ use unsigned_varint::{
 
 /// Reader function from unsigned_varint
 pub fn varint_read_u64(r: &mut ByteCursor) -> Result<u64> {
-  let mut buf: [u8; 10] = [0; 10];
-  let slice = r.get_ref();
-  buf[..10].clone_from_slice(&slice[..10]);
-  let b = varint_encode::u64(0, &mut buf);
+  let mut b = varint_encode::u64_buffer();
   for i in 0..b.len() {
-    r.read(&mut (b[i..i + 1]).to_vec());
+    let n = r.read(&mut (b[i .. i + 1]));
+    if n == 0 {
+      return Err(Error::VarIntDecodeError);
+    }
     if decode::is_last(b[i]) {
       return Ok(decode::u64(&b[..=i]).unwrap().0);
     }

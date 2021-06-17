@@ -26,7 +26,7 @@ pub trait MultihashDigest:
     ///
     /// ```
     /// // `Code` implements `MultihashDigest`
-    /// use multihash::{Code, MultihashDigest};
+    /// use sp_multihash::{Code, MultihashDigest};
     ///
     /// let hash = Code::Sha3_256.digest(b"Hello world!");
     /// println!("{:02x?}", hash);
@@ -38,7 +38,7 @@ pub trait MultihashDigest:
     /// # Example
     ///
     /// ```
-    /// use multihash::{Code, MultihashDigest, Sha3_256, StatefulHasher};
+    /// use sp_multihash::{Code, MultihashDigest, Sha3_256, StatefulHasher};
     ///
     /// let mut hasher = Sha3_256::default();
     /// hasher.update(b"Hello world!");
@@ -61,7 +61,7 @@ pub trait MultihashDigest:
 /// # Example
 ///
 /// ```
-/// use multihash::Multihash;
+/// use sp_multihash::Multihash;
 ///
 /// const Sha3_256: u64 = 0x16;
 /// let digest_bytes = [
@@ -140,15 +140,19 @@ impl<S: Size> Multihash<S> {
     where
         Self: Sized,
     {
-        let result = Self::read(&mut ByteCursor::new(bytes.to_vec())).unwrap();
-        // There were more bytes supplied than read
-        if !bytes.is_empty() {
-            return Err(Error::InvalidSize(bytes.len().try_into().expect(
-                "Currently the maximum size is 255, therefore always fits into usize",
-            )));
-        }
-
-        Ok(result)
+      let mut r = ByteCursor::new(bytes.to_vec());
+      let result = match Self::read(&mut r) {
+        Ok(r) => r,
+        Err(_) => return Err(Error::Varint(decode::Error::Overflow)),
+      };
+      // There were more bytes supplied than read
+      if bytes.len() >= r.position() as usize + 1 {
+        return Err(Error::InvalidSize(r.get_ref().len().try_into().expect(
+          "Currently the maximum size is 255, therefore always fits into usize",
+        )));
+      }
+      
+      Ok(result)
     }
 
     /// Writes a multihash to a byte stream.
@@ -161,6 +165,7 @@ impl<S: Size> Multihash<S> {
         let mut bytes = ByteCursor::new(Vec::with_capacity(self.size().into()));
         self.write(&mut bytes)
             .expect("writing to a vec should never fail");
+
         bytes.into_inner()
     }
 }
@@ -265,6 +270,7 @@ pub fn write_multihash(
         Ok(_) => (),
         Err(_) => return Err(Error::Varint(decode::Error::Overflow)),
     };
+    w.set_position(0);
     Ok(())
 }
 
@@ -276,7 +282,11 @@ pub fn read_u64(r: &mut ByteCursor) -> Result<u64, Error> {
             return Err(Error::Varint(decode::Error::Overflow));
         }
         if decode::is_last(b[i]) {
-            return Ok(decode::u64(&b[..=i]).unwrap().0);
+          match decode::u64(&b[..=i]) {
+            Ok(d) => return Ok(d.0),
+            Err(_) => return Err(Error::Varint(decode::Error::Overflow)),
+          };
+            //return Ok(decode::u64(&b[..=i]).unwrap().0);
         }
     }
     Err(Error::Varint(decode::Error::Overflow))
@@ -324,6 +334,7 @@ mod tests {
         let hash = Code::Sha2_256.digest(b"hello world");
         let mut buf = ByteCursor::new([0u8; 35].to_vec());
         hash.write(&mut buf).unwrap();
+        buf.set_position(0);
         let hash2 = Multihash::read(&mut buf).unwrap();
         assert_eq!(hash, hash2);
     }
