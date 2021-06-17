@@ -286,11 +286,10 @@ impl<S: Size> TryFrom<&str> for Cid<S> {
       Base::Base58Btc.decode(hash).unwrap()
     }
     else {
-      let decoded = match multibase::decode(hash) {
+      match multibase::decode(hash) {
         Ok((_, d)) =>  d,
         Err(_) => return Err(Error::VarIntDecodeError),
-      };
-      decoded
+      }
     };
     
     Self::try_from(decoded)
