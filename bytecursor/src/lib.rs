@@ -3,5 +3,5 @@
 extern crate alloc;
 
 pub mod bytecursor;
-pub use bytecursor::ByteCursor;
-pub use bytecursor::SeekFrom;
+pub use crate::bytecursor::ByteCursor;
+pub use crate::bytecursor::SeekFrom;
