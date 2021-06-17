@@ -49,13 +49,13 @@ impl sp_std::fmt::Debug for Ipld {
 pub mod tests {
   use super::*;
   use crate::rand::Rng;
-  use sp_multihash::{
-    Code,
-    MultihashDigest,
-  };
   use quickcheck::{
     Arbitrary,
     Gen,
+  };
+  use sp_multihash::{
+    Code,
+    MultihashDigest,
   };
 
   pub fn arbitrary_cid(g: &mut Gen) -> Cid {

@@ -165,12 +165,7 @@ impl<A> ConsList<A> {
   /// Test whether a list is empty.
   ///
   /// Time: O(1)
-  pub fn is_empty(&self) -> bool {
-    match *self.0 {
-      Nil => true,
-      _ => false,
-    }
-  }
+  pub fn is_empty(&self) -> bool { matches!(*self.0, Nil) }
 
   /// Construct a list with a new value prepended to the front of
   /// the current list.
@@ -329,7 +324,7 @@ impl<A> ConsList<A> {
     fn merge<A>(
       la: &ConsList<A>,
       lb: &ConsList<A>,
-      cmp: &Fn(&A, &A) -> Ordering,
+      cmp: &dyn Fn(&A, &A) -> Ordering,
     ) -> ConsList<A> {
       match (la.uncons(), lb.uncons()) {
         (Some((ref a, _)), Some((ref b, ref lb1)))
@@ -337,7 +332,7 @@ impl<A> ConsList<A> {
         {
           cons(b.clone(), &merge(la, lb1, cmp))
         }
-        (Some((a, la1)), Some((..))) => cons(a.clone(), &merge(&la1, lb, cmp)),
+        (Some((a, la1)), Some((..))) => cons(a, &merge(&la1, lb, cmp)),
         (None, _) => lb.clone(),
         (_, None) => la.clone(),
       }
@@ -345,7 +340,7 @@ impl<A> ConsList<A> {
 
     fn merge_pairs<A>(
       l: &ConsList<ConsList<A>>,
-      cmp: &Fn(&A, &A) -> Ordering,
+      cmp: &dyn Fn(&A, &A) -> Ordering,
     ) -> ConsList<ConsList<A>> {
       match l.uncons2() {
         Some((a, b, rest)) => {
@@ -357,7 +352,7 @@ impl<A> ConsList<A> {
 
     fn merge_all<A>(
       l: &ConsList<ConsList<A>>,
-      cmp: &Fn(&A, &A) -> Ordering,
+      cmp: &dyn Fn(&A, &A) -> Ordering,
     ) -> ConsList<A> {
       match l.uncons() {
         None => conslist![],
@@ -368,9 +363,9 @@ impl<A> ConsList<A> {
 
     fn ascending<A>(
       a: &Arc<A>,
-      f: &Fn(ConsList<A>) -> ConsList<A>,
+      f: &dyn Fn(ConsList<A>) -> ConsList<A>,
       l: &ConsList<A>,
-      cmp: &Fn(&A, &A) -> Ordering,
+      cmp: &dyn Fn(&A, &A) -> Ordering,
     ) -> ConsList<ConsList<A>> {
       match l.uncons() {
         Some((ref b, ref lb)) if cmp(a, b) != Ordering::Greater => {
@@ -384,7 +379,7 @@ impl<A> ConsList<A> {
       a: &Arc<A>,
       la: &ConsList<A>,
       lb: &ConsList<A>,
-      cmp: &Fn(&A, &A) -> Ordering,
+      cmp: &dyn Fn(&A, &A) -> Ordering,
     ) -> ConsList<ConsList<A>> {
       match lb.uncons() {
         Some((ref b, ref bs)) if cmp(a, b) == Ordering::Greater => {
@@ -396,7 +391,7 @@ impl<A> ConsList<A> {
 
     fn sequences<A>(
       l: &ConsList<A>,
-      cmp: &Fn(&A, &A) -> Ordering,
+      cmp: &dyn Fn(&A, &A) -> Ordering,
     ) -> ConsList<ConsList<A>> {
       match l.uncons2() {
         Some((ref a, ref b, ref xs)) if cmp(a, b) == Ordering::Greater => {
@@ -667,9 +662,7 @@ where T: Shared<A>
 impl<'a, A, R> From<&'a [R]> for ConsList<A>
 where &'a R: Shared<A>
 {
-  fn from(slice: &'a [R]) -> Self {
-    slice.into_iter().map(|a| a.shared()).collect()
-  }
+  fn from(slice: &'a [R]) -> Self { slice.iter().map(|a| a.shared()).collect() }
 }
 
 impl<A, R> From<Vec<R>> for ConsList<A>
@@ -681,9 +674,7 @@ where R: Shared<A>
 impl<'a, A, R> From<&'a Vec<R>> for ConsList<A>
 where &'a R: Shared<A>
 {
-  fn from(vec: &'a Vec<R>) -> Self {
-    vec.into_iter().map(|a| a.shared()).collect()
-  }
+  fn from(vec: &'a Vec<R>) -> Self { vec.iter().map(|a| a.shared()).collect() }
 }
 
 // QuickCheck
@@ -730,9 +721,7 @@ pub mod proptest {
     element: A,
     size: Range<usize>,
   ) -> BoxedStrategy<ConsList<<A::Value as ValueTree>::Value>> {
-    ::proptest::collection::vec(element, size.clone())
-      .prop_map(ConsList::from)
-      .boxed()
+    ::proptest::collection::vec(element, size).prop_map(ConsList::from).boxed()
   }
 }
 
@@ -751,7 +740,7 @@ mod test {
 
   #[test]
   fn exact_size_iterator() {
-    assert_eq!(10, ConsList::from_iter(1..11).iter().len());
+    assert_eq!(10, (1..11).collect::<ConsList<_>>().iter().len());
   }
 
   #[test]
@@ -762,7 +751,7 @@ mod test {
 
   #[test]
   fn disequality() {
-    let l = ConsList::from_iter(1..6);
+    let l = (1..6).collect::<ConsList<_>>();
     assert_ne!(l, cons(0, &l));
     assert_ne!(l, conslist![1, 2, 3, 4, 5, 6]);
   }
@@ -782,7 +771,7 @@ mod test {
 
       fn equality(vec: Vec<i32>) -> bool {
           let list1 = ConsList::from(vec.clone());
-          let list2 = ConsList::from(vec.clone());
+          let list2 = ConsList::from(vec);
           list1 == list2
       }
 
@@ -793,14 +782,14 @@ mod test {
 
       fn reverse_a_list(l: ConsList<i32>) -> bool {
           let vec: Vec<i32> = l.iter().map(|v| *v).collect();
-          let rev = ConsList::from_iter(vec.into_iter().rev());
+          let rev = vec.into_iter().rev().collect::<ConsList<_>>();
           l.reverse() == rev
       }
 
       fn append_two_lists(xs: ConsList<i32>, ys: ConsList<i32>) -> bool {
-          let extended = ConsList::from_iter(
+          let extended =
             xs.iter().map(|v| *v).chain(ys.iter().map(|v| *v))
-          );
+          .collect::<ConsList<_>>();
           xs.append(&ys) == extended
       }
 
