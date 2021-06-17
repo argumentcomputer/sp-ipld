@@ -1,0 +1,12 @@
+[submodule "sp-multihash"]
+	path = sp-multihash
+	url = git@github.com:yatima-inc/sp-multihash.git
+[submodule "sp-cid"]
+	path = sp-cid
+	url = git@github.com:yatima-inc/sp-cid.git
+[submodule "sp-im"]
+	path = sp-im
+	url = ./sp-im/
+[submodule "bytecursor"]
+	path = bytecursor
+	url = ./bytecursor/
