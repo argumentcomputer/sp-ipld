@@ -22,8 +22,8 @@ use byteorder::{
 use sp_std::{
   any::type_name,
   collections::btree_map::BTreeMap,
-  vec::Vec,
   convert::TryFrom,
+  vec::Vec,
 };
 
 use bytecursor::{

@@ -10,10 +10,12 @@ use alloc::{
   string::String,
   sync::Arc,
 };
+use bytecursor::ByteCursor;
 use byteorder::{
   BigEndian,
   ByteOrder,
 };
+use sp_cid::Cid;
 use sp_std::{
   collections::btree_map::BTreeMap,
   convert::TryFrom,
@@ -21,8 +23,6 @@ use sp_std::{
   ops::Deref,
   vec::Vec,
 };
-use bytecursor::ByteCursor;
-use sp_cid::Cid;
 
 /// # Errors
 ///

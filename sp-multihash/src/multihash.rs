@@ -5,11 +5,9 @@ use core::convert::TryInto;
 use core::fmt::Debug;
 use generic_array::{ArrayLength, GenericArray};
 
-use unsigned_varint::{encode as varint_encode, decode};
 use bytecursor::ByteCursor;
-use sp_std::{
-  vec::Vec,
-};
+use sp_std::vec::Vec;
+use unsigned_varint::{decode, encode as varint_encode};
 
 /// Trait that implements hashing.
 ///
@@ -127,11 +125,11 @@ impl<S: Size> Multihash<S> {
     where
         Self: Sized,
     {
-      let (code, size, digest) = match read_multihash(r) {
-        Ok((c, s, d)) => (c, s, d),
-        Err(e) => return Err(e),
-      };
-      Ok(Self { code, size, digest })
+        let (code, size, digest) = match read_multihash(r) {
+            Ok((c, s, d)) => (c, s, d),
+            Err(e) => return Err(e),
+        };
+        Ok(Self { code, size, digest })
     }
 
     /// Parses a multihash from a bytes.
@@ -243,73 +241,78 @@ impl parity_scale_codec::Decode for Multihash<crate::U64> {
 }
 
 /// Writes the multihash to a byte stream.
-     pub fn write_multihash(w: &mut ByteCursor, code: u64, size: u8, digest: &[u8]) -> Result<(), Error> {
-       let mut code_buf = varint_encode::u64_buffer();
-       let code = varint_encode::u64(code, &mut code_buf);
-       
-       let mut size_buf = varint_encode::u8_buffer();
-       let size = varint_encode::u8(size, &mut size_buf);
-       
-       match w.write_all(code) {
-         Ok(_) => (),
-         Err(_) => return Err(Error::Varint(decode::Error::Overflow)),
-       };
-       match w.write_all(size) {
-         Ok(_) => (),
-         Err(_) => return Err(Error::Varint(decode::Error::Overflow)),
-       };
-       match w.write_all(digest) {
-         Ok(_) => (),
-         Err(_) => return Err(Error::Varint(decode::Error::Overflow)),
-       };
-       Ok(())
-     }
+pub fn write_multihash(
+    w: &mut ByteCursor,
+    code: u64,
+    size: u8,
+    digest: &[u8],
+) -> Result<(), Error> {
+    let mut code_buf = varint_encode::u64_buffer();
+    let code = varint_encode::u64(code, &mut code_buf);
 
-     pub fn read_u64(r: &mut ByteCursor) -> Result<u64, Error>{
-       let mut b = varint_encode::u64_buffer();
-       for i in 0..b.len() {
-         let n = r.read(&mut b[i..(i + 1)]);
-         if n == 0 {
-           return Err(Error::Varint(decode::Error::Overflow))
-         }
-         if decode::is_last(b[i]) {
-           return Ok(decode::u64(&b[..= i]).unwrap().0)
-         }
-       }
-       Err(Error::Varint(decode::Error::Overflow))
-     }
+    let mut size_buf = varint_encode::u8_buffer();
+    let size = varint_encode::u8(size, &mut size_buf);
 
-     /// Reads a multihash from a byte stream that contains a full multihash (code, size and the digest)
-     ///
-     /// Returns the code, size and the digest. The size is the actual size and not the
-     /// maximum/allocated size of the digest.
-     ///
-     /// Currently the maximum size for a digest is 255 bytes.
-     pub fn read_multihash<S>(r: &mut ByteCursor) -> Result<(u64, u8, GenericArray<u8, S>), Error>
-  where
-     S: Size,
-     {
-       let code = match read_u64(r) {
-         Ok(c) => c,
-         Err(e) => return Err(e),
-       };
-       let size = match read_u64(r) {
-         Ok(s) => s,
-         Err(e) => return Err(e),
-       };
-       
-       if size > S::to_u64() || size > u8::MAX as u64 {
-         return Err(Error::InvalidSize(size));
-       }
-       
-       let mut digest = GenericArray::default();
+    match w.write_all(code) {
+        Ok(_) => (),
+        Err(_) => return Err(Error::Varint(decode::Error::Overflow)),
+    };
+    match w.write_all(size) {
+        Ok(_) => (),
+        Err(_) => return Err(Error::Varint(decode::Error::Overflow)),
+    };
+    match w.write_all(digest) {
+        Ok(_) => (),
+        Err(_) => return Err(Error::Varint(decode::Error::Overflow)),
+    };
+    Ok(())
+}
 
-       match r.read_exact(&mut digest[..size as usize]) {
-         Ok(_) => (),
-         Err(_) => return Err(Error::Varint(decode::Error::Overflow)),
-       }
-       Ok((code, size as u8, digest))
-     }
+pub fn read_u64(r: &mut ByteCursor) -> Result<u64, Error> {
+    let mut b = varint_encode::u64_buffer();
+    for i in 0..b.len() {
+        let n = r.read(&mut b[i..(i + 1)]);
+        if n == 0 {
+            return Err(Error::Varint(decode::Error::Overflow));
+        }
+        if decode::is_last(b[i]) {
+            return Ok(decode::u64(&b[..=i]).unwrap().0);
+        }
+    }
+    Err(Error::Varint(decode::Error::Overflow))
+}
+
+/// Reads a multihash from a byte stream that contains a full multihash (code, size and the digest)
+///
+/// Returns the code, size and the digest. The size is the actual size and not the
+/// maximum/allocated size of the digest.
+///
+/// Currently the maximum size for a digest is 255 bytes.
+pub fn read_multihash<S>(r: &mut ByteCursor) -> Result<(u64, u8, GenericArray<u8, S>), Error>
+where
+    S: Size,
+{
+    let code = match read_u64(r) {
+        Ok(c) => c,
+        Err(e) => return Err(e),
+    };
+    let size = match read_u64(r) {
+        Ok(s) => s,
+        Err(e) => return Err(e),
+    };
+
+    if size > S::to_u64() || size > u8::MAX as u64 {
+        return Err(Error::InvalidSize(size));
+    }
+
+    let mut digest = GenericArray::default();
+
+    match r.read_exact(&mut digest[..size as usize]) {
+        Ok(_) => (),
+        Err(_) => return Err(Error::Varint(decode::Error::Overflow)),
+    }
+    Ok((code, size as u8, digest))
+}
 
 #[cfg(test)]
 mod tests {

@@ -61,8 +61,8 @@ pub mod tests {
     Gen,
   };
 
-  use sp_std::collections::btree_map::BTreeMap;
   use sp_multihash::Size as S;
+  use sp_std::collections::btree_map::BTreeMap;
 
   fn encode_decode_id<T: DagCbor + PartialEq<T> + Clone>(value: T) -> bool {
     let mut bc = ByteCursor::new(Vec::new());

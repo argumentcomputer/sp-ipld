@@ -1,5 +1,5 @@
-use std::io::Write;
 use bytecursor::ByteCursor;
+use std::io::Write;
 
 use sp_multihash::{
     derive::Multihash, Blake2b256, Blake2b512, Blake2bDigest, Blake2s128, Blake2s256,
