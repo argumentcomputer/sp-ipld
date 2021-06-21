@@ -409,13 +409,13 @@ mod tests {
         };
         let expected = quote! {
             /// A Multihash with the same allocated size as the Multihashes produces by this derive.
-            pub type Multihash = multihash::MultihashGeneric::<U32>;
+            pub type Multihash = sp_multihash::MultihashGeneric::<U32>;
 
-            impl multihash::MultihashDigest for Code {
+            impl sp_multihash::MultihashDigest for Code {
                type AllocSize = U32;
 
                fn digest(&self, input: &[u8]) -> Multihash {
-                   use multihash::Hasher;
+                   use sp_multihash::Hasher;
                    match self {
                        Self::Identity256 => {
                            let digest = multihash::Identity256::digest(input);
@@ -431,8 +431,8 @@ mod tests {
 
                fn multihash_from_digest<'a, S, D>(digest: &'a D) -> Multihash
                where
-                   S: multihash::Size,
-                   D: multihash::Digest<S>,
+                   S: sp_multihash::Size,
+                   D: sp_multihash::Digest<S>,
                    Self: From<&'a D>,
                {
                    let code = Self::from(&digest);
@@ -452,13 +452,13 @@ mod tests {
             }
 
             impl core::convert::TryFrom<u64> for Code {
-                type Error = multihash::Error;
+                type Error = sp_multihash::Error;
 
                 fn try_from(code: u64) -> Result<Self, Self::Error> {
                     match code {
                         multihash::IDENTITY => Ok(Self::Identity256),
                         0x38b64f => Ok(Self::Strobe256),
-                        _ => Err(multihash::Error::UnsupportedCode(code))
+                        _ => Err(sp_multihash::Error::UnsupportedCode(code))
                     }
                 }
             }
