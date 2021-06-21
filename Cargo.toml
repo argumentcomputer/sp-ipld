@@ -3,6 +3,5 @@ members = [
   "sp-ipld",
   "sp-cid",
   "sp-multihash",
-  "sp-im",
   "bytecursor",
 ]
