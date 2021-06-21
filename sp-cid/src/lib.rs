@@ -1,6 +1,6 @@
-//! # cid
+//! # sp_cid
 //!
-//! Implementation of [cid](https://github.com/ipld/cid) in Rust.
+//! Implementation of [sp_cid](https://github.com/ipld/sp_cid) in Rust.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 

@@ -4,7 +4,7 @@ use sp_std::{
   vec::Vec,
 };
 
-use cid::Cid;
+use sp_cid::Cid;
 
 #[derive(Clone, PartialEq)]
 pub enum Ipld {
@@ -40,7 +40,7 @@ impl sp_std::fmt::Debug for Ipld {
       Bytes(b) => write!(f, "{:?}", b),
       List(l) => write!(f, "{:?}", l),
       StringMap(m) => write!(f, "{:?}", m),
-      Link(cid) => write!(f, "{}", cid),
+      Link(sp_cid) => write!(f, "{}", sp_cid),
     }
   }
 }
@@ -58,7 +58,7 @@ pub mod tests {
     MultihashDigest,
   };
 
-  pub fn arbitrary_cid(g: &mut Gen) -> Cid {
+  pub fn arbitrary_sp_cid(g: &mut Gen) -> Cid {
     let mut bytes: [u8; 32] = [0; 32];
     for x in bytes.iter_mut() {
       *x = Arbitrary::arbitrary(g);
@@ -97,7 +97,7 @@ pub mod tests {
   }
 
   fn arbitrary_link() -> Box<dyn Fn(&mut Gen) -> Ipld> {
-    Box::new(move |g: &mut Gen| Ipld::Link(arbitrary_cid(g)))
+    Box::new(move |g: &mut Gen| Ipld::Link(arbitrary_sp_cid(g)))
   }
 
   pub fn arbitrary_i128() -> Box<dyn Fn(&mut Gen) -> i128> {

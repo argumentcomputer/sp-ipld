@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "ipld",
-  "cid",
+  "sp-cid",
   "multihash",
   "bytecursor",
 ]

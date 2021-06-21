@@ -49,20 +49,20 @@ pub mod tests {
       client.post(url).multipart(form).send().await?.json().await?;
     println!("response: {:?}", response);
 
-    let ipfs_cid: String = response["Cid"]["/"].as_str().unwrap().to_string();
-    let local_cid: String = cid(&dag).to_string();
+    let ipfs_sp_cid: String = response["Cid"]["/"].as_str().unwrap().to_string();
+    let local_sp_cid: String = sp_cid(&dag).to_string();
 
-    if ipfs_cid == local_cid {
-      Ok(ipfs_cid)
+    if ipfs_sp_cid == local_sp_cid {
+      Ok(ipfs_sp_cid)
     }
     else {
-      panic!("CIDs are different {} != {}", ipfs_cid, local_cid);
+      panic!("CIDs are different {} != {}", ipfs_sp_cid, local_sp_cid);
     }
   }
-  pub async fn dag_get(cid: String) -> Result<Ipld, reqwest::Error> {
+  pub async fn dag_get(sp_cid: String) -> Result<Ipld, reqwest::Error> {
     let host = "http://127.0.0.1:5001";
     let url =
-      format!("{}{}?arg={}", host, "/api/v0/block/get", cid.to_string());
+      format!("{}{}?arg={}", host, "/api/v0/block/get", sp_cid.to_string());
     let client = reqwest::Client::new();
     let response = client.post(url).send().await?.bytes().await?;
     let response = response.to_vec();
@@ -76,13 +76,13 @@ pub mod tests {
   }
   async fn async_ipld_ipfs(ipld: Ipld) -> bool {
     match dag_put(ipld.clone()).await {
-      Ok(cid) => match dag_get(cid.clone()).await {
+      Ok(sp_cid) => match dag_get(sp_cid.clone()).await {
         Ok(new_ipld) => {
           if ipld.clone() == new_ipld.clone() {
             true
           }
           else {
-            eprintln!("Cid: {}", cid);
+            eprintln!("Cid: {}", sp_cid);
             eprintln!("Encoded ipld: {:?}", ipld);
             eprintln!("Decoded ipld: {:?}", new_ipld);
             false

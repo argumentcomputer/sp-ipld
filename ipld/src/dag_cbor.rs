@@ -8,7 +8,7 @@ use crate::{
   ipld::Ipld,
 };
 
-use cid::Cid;
+use sp_cid::Cid;
 use multihash::{
   Code,
   MultihashDigest,
@@ -38,7 +38,7 @@ pub trait DagCbor: Encode<DagCborCodec> + Decode<DagCborCodec> {}
 
 impl<T: Encode<DagCborCodec> + Decode<DagCborCodec>> DagCbor for T {}
 
-pub fn cid(x: &Ipld) -> Cid {
+pub fn sp_cid(x: &Ipld) -> Cid {
   Cid::new_v1(
     0x71,
     Code::Blake2b256
@@ -111,7 +111,7 @@ pub mod tests {
 
   impl Arbitrary for ACid {
     fn arbitrary(g: &mut Gen) -> Self {
-      ACid(crate::ipld::tests::arbitrary_cid(g))
+      ACid(crate::ipld::tests::arbitrary_sp_cid(g))
     }
   }
 

@@ -30,7 +30,7 @@ use bytecursor::{
   ByteCursor,
   SeekFrom,
 };
-use cid::Cid;
+use sp_cid::Cid;
 
 /// # Errors
 ///

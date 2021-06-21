@@ -36,7 +36,7 @@ impl Arbitrary for Cid {
     if version == Version::V0 {
       let data: Vec<u8> = Arbitrary::arbitrary(g);
       let hash = Code::Sha2_256.digest(&data);
-      Cid::new_v0(hash).expect("sha2_256 is a valid hash for cid v0")
+      Cid::new_v0(hash).expect("sha2_256 is a valid hash for sp_cid v0")
     }
     else {
       // In real world lower IPLD Codec codes more likely to happen, hence

@@ -8,7 +8,7 @@ use std::{
 };
 
 use multibase::Base;
-use cid::{
+use sp_cid::{
   Cid,
   CidGeneric,
   Error,
@@ -29,21 +29,21 @@ const DAG_PB: u64 = 0x70;
 fn basic_marshalling() {
   let h = Code::Sha2_256.digest(b"beep boop");
 
-  let cid = Cid::new_v1(DAG_PB, h);
+  let sp_cid = Cid::new_v1(DAG_PB, h);
 
-  let data = cid.to_bytes();
+  let data = sp_cid.to_bytes();
   let out = Cid::try_from(data.clone()).unwrap();
-  assert_eq!(cid, out);
+  assert_eq!(sp_cid, out);
 
   let out2 = data.try_into().unwrap();
-  assert_eq!(cid, out2);
+  assert_eq!(sp_cid, out2);
 
-  let s = cid.to_string();
+  let s = sp_cid.to_string();
   let out3 = Cid::try_from(&s[..]).unwrap();
-  assert_eq!(cid, out3);
+  assert_eq!(sp_cid, out3);
 
   let out4 = (&s[..]).try_into().unwrap();
-  assert_eq!(cid, out4);
+  assert_eq!(sp_cid, out4);
 }
 
 #[test]
@@ -54,17 +54,17 @@ fn empty_string() {
 #[test]
 fn v0_handling() {
   let old = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n";
-  let cid = Cid::try_from(old).unwrap();
+  let sp_cid = Cid::try_from(old).unwrap();
 
-  assert_eq!(cid.version(), Version::V0);
-  assert_eq!(cid.to_string(), old);
+  assert_eq!(sp_cid.version(), Version::V0);
+  assert_eq!(sp_cid.to_string(), old);
 }
 
 #[test]
 fn from_str() {
-  let cid: Cid =
+  let sp_cid: Cid =
     "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n".parse().unwrap();
-  assert_eq!(cid.version(), Version::V0);
+  assert_eq!(sp_cid.version(), Version::V0);
 
   let bad = "QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zIII".parse::<Cid>();
   assert!(matches!(bad, Err(Error::ParsingError)));
@@ -87,9 +87,9 @@ fn from() {
   ];
 
   for case in cases {
-    let cid = Cid::try_from(case).unwrap();
-    assert_eq!(cid.version(), Version::V0);
-    assert_eq!(cid.to_string(), the_hash);
+    let sp_cid = Cid::try_from(case).unwrap();
+    assert_eq!(sp_cid.version(), Version::V0);
+    assert_eq!(sp_cid.to_string(), the_hash);
   }
 }
 
@@ -98,70 +98,70 @@ fn test_hash() {
   let data: Vec<u8> = vec![1, 2, 3];
   let hash = Code::Sha2_256.digest(&data);
   let mut map = HashMap::new();
-  let cid = Cid::new_v0(hash).unwrap();
-  map.insert(cid, data.clone());
-  assert_eq!(&data, map.get(&cid).unwrap());
+  let sp_cid = Cid::new_v0(hash).unwrap();
+  map.insert(sp_cid, data.clone());
+  assert_eq!(&data, map.get(&sp_cid).unwrap());
 }
 
 #[test]
 fn test_base32() {
-  let cid = Cid::from_str(
+  let sp_cid = Cid::from_str(
     "bafkreibme22gw2h7y2h7tg2fhqotaqjucnbc24deqo72b6mkl2egezxhvy",
   )
   .unwrap();
-  assert_eq!(cid.version(), Version::V1);
-  assert_eq!(cid.codec(), RAW);
-  assert_eq!(cid.hash(), &Code::Sha2_256.digest(b"foo"));
+  assert_eq!(sp_cid.version(), Version::V1);
+  assert_eq!(sp_cid.codec(), RAW);
+  assert_eq!(sp_cid.hash(), &Code::Sha2_256.digest(b"foo"));
 }
 
 #[test]
 fn to_string() {
-  let expected_cid =
+  let expected_sp_cid =
     "bafkreibme22gw2h7y2h7tg2fhqotaqjucnbc24deqo72b6mkl2egezxhvy";
-  let cid = Cid::new_v1(RAW, Code::Sha2_256.digest(b"foo"));
-  assert_eq!(cid.to_string(), expected_cid);
+  let sp_cid = Cid::new_v1(RAW, Code::Sha2_256.digest(b"foo"));
+  assert_eq!(sp_cid.to_string(), expected_sp_cid);
 }
 
 #[test]
 fn to_string_of_base32() {
-  let expected_cid =
+  let expected_sp_cid =
     "bafkreibme22gw2h7y2h7tg2fhqotaqjucnbc24deqo72b6mkl2egezxhvy";
-  let cid = Cid::new_v1(RAW, Code::Sha2_256.digest(b"foo"));
-  assert_eq!(cid.to_string_of_base(Base::Base32Lower).unwrap(), expected_cid);
+  let sp_cid = Cid::new_v1(RAW, Code::Sha2_256.digest(b"foo"));
+  assert_eq!(sp_cid.to_string_of_base(Base::Base32Lower).unwrap(), expected_sp_cid);
 }
 
 #[test]
 fn to_string_of_base64() {
-  let expected_cid = "mAVUSICwmtGto/8aP+ZtFPB0wQTQTQi1wZIO/oPmKXohiZueu";
-  let cid = Cid::new_v1(RAW, Code::Sha2_256.digest(b"foo"));
-  assert_eq!(cid.to_string_of_base(Base::Base64).unwrap(), expected_cid);
+  let expected_sp_cid = "mAVUSICwmtGto/8aP+ZtFPB0wQTQTQi1wZIO/oPmKXohiZueu";
+  let sp_cid = Cid::new_v1(RAW, Code::Sha2_256.digest(b"foo"));
+  assert_eq!(sp_cid.to_string_of_base(Base::Base64).unwrap(), expected_sp_cid);
 }
 
 #[test]
 fn to_string_of_base58_v0() {
-  let expected_cid = "QmRJzsvyCQyizr73Gmms8ZRtvNxmgqumxc2KUp71dfEmoj";
-  let cid = Cid::new_v0(Code::Sha2_256.digest(b"foo")).unwrap();
-  assert_eq!(cid.to_string_of_base(Base::Base58Btc).unwrap(), expected_cid);
+  let expected_sp_cid = "QmRJzsvyCQyizr73Gmms8ZRtvNxmgqumxc2KUp71dfEmoj";
+  let sp_cid = Cid::new_v0(Code::Sha2_256.digest(b"foo")).unwrap();
+  assert_eq!(sp_cid.to_string_of_base(Base::Base58Btc).unwrap(), expected_sp_cid);
 }
 
 #[test]
 fn to_string_of_base_v0_error() {
-  let cid = Cid::new_v0(Code::Sha2_256.digest(b"foo")).unwrap();
+  let sp_cid = Cid::new_v0(Code::Sha2_256.digest(b"foo")).unwrap();
   assert!(matches!(
-    cid.to_string_of_base(Base::Base16Upper),
+    sp_cid.to_string_of_base(Base::Base16Upper),
     Err(Error::InvalidCidV0Base)
   ));
 }
 
-fn a_function_that_takes_a_generic_cid<S: Size>(cid: &CidGeneric<S>) -> String {
-  cid.to_string()
+fn a_function_that_takes_a_generic_sp_cid<S: Size>(sp_cid: &CidGeneric<S>) -> String {
+  sp_cid.to_string()
 }
 
 // This test is about having something implemented that used the default size of
 // `Cid`. So the code is using `Cid` instead of `Cid<SomeSize>`. The code will
 // still work with other sizes.
 #[test]
-fn method_can_take_differently_sized_cids() {
+fn method_can_take_differently_sized_sp_cids() {
   #[derive(Clone, Copy, Debug, Eq, PartialEq, Multihash)]
   #[mh(alloc_size = U128)]
   enum Code128 {
@@ -169,12 +169,12 @@ fn method_can_take_differently_sized_cids() {
     Sha2_256,
   }
 
-  let cid_default = Cid::new_v1(RAW, Code::Sha2_256.digest(b"foo"));
-  let cid_128 =
+  let sp_cid_default = Cid::new_v1(RAW, Code::Sha2_256.digest(b"foo"));
+  let sp_cid_128 =
     CidGeneric::<U128>::new_v1(RAW, Code128::Sha2_256.digest(b"foo"));
 
   assert_eq!(
-    a_function_that_takes_a_generic_cid(&cid_default),
-    a_function_that_takes_a_generic_cid(&cid_128)
+    a_function_that_takes_a_generic_sp_cid(&sp_cid_default),
+    a_function_that_takes_a_generic_sp_cid(&sp_cid_128)
   );
 }

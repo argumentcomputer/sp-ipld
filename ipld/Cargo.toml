@@ -14,7 +14,7 @@ parity-scale-codec = { version = "2.1.1", default-features = false, features = [
 serde = { version = "1.0.116", optional = true }
 
 bytecursor = { path = "../bytecursor" }
-cid =  { path = "../cid" }
+sp-cid =  { path = "../sp-cid" }
 multihash = { path = "../multihash" }
 
 [dev-dependencies]

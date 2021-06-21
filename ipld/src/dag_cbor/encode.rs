@@ -15,7 +15,7 @@ use byteorder::{
   BigEndian,
   ByteOrder,
 };
-use cid::Cid;
+use sp_cid::Cid;
 use sp_std::{
   collections::btree_map::BTreeMap,
   convert::TryFrom,
@@ -311,7 +311,7 @@ impl Encode<DagCborCodec> for Ipld {
       Self::String(s) => s.encode(c, w),
       Self::List(l) => l.encode(c, w),
       Self::StringMap(m) => m.encode(c, w),
-      Self::Link(cid) => cid.encode(c, w),
+      Self::Link(sp_cid) => sp_cid.encode(c, w),
     }
   }
 }

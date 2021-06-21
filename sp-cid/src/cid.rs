@@ -90,13 +90,13 @@ impl<S: Size> Cid<S> {
     }
   }
 
-  /// Returns the cid version.
+  /// Returns the sp_cid version.
   pub fn version(&self) -> Version { self.version }
 
-  /// Returns the cid codec.
+  /// Returns the sp_cid codec.
   pub fn codec(&self) -> u64 { self.codec }
 
-  /// Returns the cid multihash.
+  /// Returns the sp_cid multihash.
   pub fn hash(&self) -> &Multihash<S> { &self.hash }
 
   /// Reads the bytes from a byte stream.
@@ -190,7 +190,7 @@ impl<S: Size> Cid<S> {
   /// # Example
   ///
   /// ```
-  /// use cid::Cid;
+  /// use sp_cid::Cid;
   /// use multibase::Base;
   /// use multihash::{
   ///   Code,
@@ -199,8 +199,8 @@ impl<S: Size> Cid<S> {
   ///
   /// const RAW: u64 = 0x55;
   ///
-  /// let cid = Cid::new_v1(RAW, Code::Sha2_256.digest(b"foo"));
-  /// let encoded = cid.to_string_of_base(Base::Base64).unwrap();
+  /// let sp_cid = Cid::new_v1(RAW, Code::Sha2_256.digest(b"foo"));
+  /// let encoded = sp_cid.to_string_of_base(Base::Base64).unwrap();
   /// assert_eq!(encoded, "mAVUSICwmtGto/8aP+ZtFPB0wQTQTQi1wZIO/oPmKXohiZueu");
   /// ```
   pub fn to_string_of_base(&self, base: Base) -> Result<String> {
@@ -256,26 +256,26 @@ impl<S: Size> fmt::Debug for Cid<S> {
 impl<S: Size> str::FromStr for Cid<S> {
   type Err = Error;
 
-  fn from_str(cid_str: &str) -> Result<Self> { Self::try_from(cid_str) }
+  fn from_str(sp_cid_str: &str) -> Result<Self> { Self::try_from(sp_cid_str) }
 }
 
 impl<S: Size> TryFrom<String> for Cid<S> {
   type Error = Error;
 
-  fn try_from(cid_str: String) -> Result<Self> {
-    Self::try_from(cid_str.as_str())
+  fn try_from(sp_cid_str: String) -> Result<Self> {
+    Self::try_from(sp_cid_str.as_str())
   }
 }
 
 impl<S: Size> TryFrom<&str> for Cid<S> {
   type Error = Error;
 
-  fn try_from(cid_str: &str) -> Result<Self> {
+  fn try_from(sp_cid_str: &str) -> Result<Self> {
     static IPFS_DELIMETER: &str = "/ipfs/";
 
-    let hash = match cid_str.find(IPFS_DELIMETER) {
-      Some(index) => &cid_str[index + IPFS_DELIMETER.len()..],
-      _ => cid_str,
+    let hash = match sp_cid_str.find(IPFS_DELIMETER) {
+      Some(index) => &sp_cid_str[index + IPFS_DELIMETER.len()..],
+      _ => sp_cid_str,
     };
 
     if hash.len() < 2 {
@@ -318,15 +318,15 @@ impl<S: Size> TryFrom<&[u8]> for Cid<S> {
 impl<S: Size> From<&Cid<S>> for Cid<S>
 where S::ArrayType: Copy
 {
-  fn from(cid: &Cid<S>) -> Self { *cid }
+  fn from(sp_cid: &Cid<S>) -> Self { *sp_cid }
 }
 
 impl<S: Size> From<Cid<S>> for Vec<u8> {
-  fn from(cid: Cid<S>) -> Self { cid.to_bytes() }
+  fn from(sp_cid: Cid<S>) -> Self { sp_cid.to_bytes() }
 }
 
 impl<S: Size> From<Cid<S>> for String {
-  fn from(cid: Cid<S>) -> Self { cid.to_string() }
+  fn from(sp_cid: Cid<S>) -> Self { sp_cid.to_string() }
 }
 
 impl<'a, S: Size> From<Cid<S>> for borrow::Cow<'a, Cid<S>> {
@@ -341,7 +341,7 @@ impl<'a, S: Size> From<&'a Cid<S>> for borrow::Cow<'a, Cid<S>> {
 mod tests {
   #[test]
   #[cfg(feature = "scale-codec")]
-  fn test_cid_scale_codec() {
+  fn test_sp_cid_scale_codec() {
     use super::Cid;
     use parity_scale_codec::{
       Decode,
@@ -349,22 +349,22 @@ mod tests {
     };
     use multihash::U64;
 
-    let cid = Cid::<U64>::default();
-    let bytes = cid.encode();
-    let cid2 = Cid::decode(&mut &bytes[..]).unwrap();
-    assert_eq!(cid, cid2);
+    let sp_cid = Cid::<U64>::default();
+    let bytes = sp_cid.encode();
+    let sp_cid2 = Cid::decode(&mut &bytes[..]).unwrap();
+    assert_eq!(sp_cid, sp_cid2);
   }
 
   #[test]
   #[cfg(feature = "serde-codec")]
-  fn test_cid_serde() {
+  fn test_sp_cid_serde() {
     use super::Cid;
     use multihash::U64;
 
-    let cid = Cid::<U64>::default();
-    let bytes = serde_json::to_string(&cid).unwrap();
-    let cid2 = serde_json::from_str(&bytes).unwrap();
-    assert_eq!(cid, cid2);
+    let sp_cid = Cid::<U64>::default();
+    let bytes = serde_json::to_string(&sp_cid).unwrap();
+    let sp_cid2 = serde_json::from_str(&bytes).unwrap();
+    assert_eq!(sp_cid, sp_cid2);
   }
 
   #[test]
@@ -373,17 +373,17 @@ mod tests {
     use super::Cid;
     use multihash::U64;
     use std::str::FromStr;
-    let cid = Cid::<U64>::from_str(
+    let sp_cid = Cid::<U64>::from_str(
       "bafyreibjo4xmgaevkgud7mbifn3dzp4v4lyaui4yvqp3f2bqwtxcjrdqg4",
     )
     .unwrap();
     // short debug
     assert_eq!(
-      &format!("{:?}", cid),
+      &format!("{:?}", sp_cid),
       "Cid(bafyreibjo4xmgaevkgud7mbifn3dzp4v4lyaui4yvqp3f2bqwtxcjrdqg4)"
     );
     // verbose debug
-    let mut txt = format!("{:#?}", cid);
+    let mut txt = format!("{:#?}", sp_cid);
     txt.retain(|c| !c.is_whitespace());
     assert_eq!(
       &txt,
