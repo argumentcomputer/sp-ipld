@@ -24,12 +24,14 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The `sp-ipld` project was forked from https://github.com/ipfs-rust/libipld
-and contains code which is subject to the terms of the MIT or Apache License
+and contains code which is subject to the terms of the MIT or Apache License.
+
 The `sp-cid` project was forked from https://github.com/multiformats/cid
 (Copyright © 2017 Friedel Ziegelmayer) and
 contains code which is subject to the terms of the MIT License.
+
 The `sp-multihash` project was forked from https://github.com/multiformats/rust-multihash
-(Copyright (C) 2015-2016 Friedel Ziegelmayer) and 
+(Copyright © 2015-2016 Friedel Ziegelmayer) and 
 contains code which is subject to the terms of the MIT License.
 
 See each subcrate for further license information.
