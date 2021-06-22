@@ -8,8 +8,8 @@ use crate::{
   ipld::Ipld,
 };
 
-use cid::Cid;
-use multihash::{
+use sp_cid::Cid;
+use sp_multihash::{
   Code,
   MultihashDigest,
 };
@@ -50,18 +50,15 @@ pub fn cid(x: &Ipld) -> Cid {
 pub mod tests {
   use super::*;
   use crate::{
-    codec::*,
     ipld::*,
   };
   use bytecursor::ByteCursor;
-  #[macro_use]
   use quickcheck::{
     quickcheck,
     Arbitrary,
     Gen,
   };
 
-  use multihash::Size as S;
   use sp_std::collections::btree_map::BTreeMap;
 
   fn encode_decode_id<T: DagCbor + PartialEq<T> + Clone>(value: T) -> bool {

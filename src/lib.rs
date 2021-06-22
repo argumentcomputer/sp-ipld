@@ -15,7 +15,7 @@ pub mod dag_cbor;
 pub mod ipld;
 
 pub use codec::*;
-pub use crate::ipld::*;
+pub use ipld::*;
 
 #[cfg(test)]
 pub mod tests {

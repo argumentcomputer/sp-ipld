@@ -4,7 +4,7 @@ use sp_std::{
   vec::Vec,
 };
 use alloc::string::String;
-use cid::Cid;
+use sp_cid::Cid;
 
 #[derive(Clone, PartialEq)]
 pub enum Ipld {
@@ -53,7 +53,7 @@ pub mod tests {
     Arbitrary,
     Gen,
   };
-  use multihash::{
+  use sp_multihash::{
     Code,
     MultihashDigest,
   };

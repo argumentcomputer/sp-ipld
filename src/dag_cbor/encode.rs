@@ -15,7 +15,7 @@ use byteorder::{
   BigEndian,
   ByteOrder,
 };
-use cid::Cid;
+use sp_cid::Cid;
 use sp_std::{
   collections::btree_map::BTreeMap,
   convert::TryFrom,
