@@ -5,6 +5,9 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+std = []
+
 [dependencies]
 sp-std = { version = "3", default-features = false }
 byteorder = { version = "1", default-features = false }
