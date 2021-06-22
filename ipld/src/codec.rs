@@ -6,6 +6,7 @@ use sp_std::{
   ops::Deref,
   vec::Vec,
 };
+use alloc::string::String;
 
 pub struct UnsupportedCodec(pub u64);
 

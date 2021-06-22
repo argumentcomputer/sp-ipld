@@ -3,7 +3,7 @@ use sp_std::{
   collections::btree_map::BTreeMap,
   vec::Vec,
 };
-
+use alloc::string::String;
 use cid::Cid;
 
 #[derive(Clone, PartialEq)]
