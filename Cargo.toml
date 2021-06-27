@@ -16,8 +16,8 @@ multibase = { version = "0.9.1", optional = true }
 parity-scale-codec = { version = "2.1.1", default-features = false, features = ["derive"], optional = true }
 serde = { version = "1.0.116", optional = true }
 bytecursor = { git = "https://github.com/yatima-inc/bytecursor", branch = "main" }
-sp-cid = { git = "https://github.com/yatima-inc/sp-cid", branch = "master" }
-sp-multihash = { git = "https://github.com/yatima-inc/sp-multihash", branch = "master" }
+sp-cid = { git = "https://github.com/yatima-inc/sp-cid", branch = "main" }
+sp-multihash = { git = "https://github.com/yatima-inc/sp-multihash", branch = "main" }
 
 [dev-dependencies]
 quickcheck = "1.0.3"

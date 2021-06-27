@@ -121,7 +121,7 @@ checksum = "65c1bf4a04a88c54f589125563643d773f3254b5c38571395e2b591c693bbc81"
 [[package]]
 name = "bytecursor"
 version = "0.1.0"
-source = "git+https://github.com/yatima-inc/bytecursor#ceddcf7148286582bdec89a9490a362fb602f4ff"
+source = "git+https://github.com/yatima-inc/bytecursor?branch=main#ceddcf7148286582bdec89a9490a362fb602f4ff"
 dependencies = [
  "sp-std",
 ]
@@ -1010,7 +1010,7 @@ dependencies = [
 [[package]]
 name = "sp-cid"
 version = "0.1.0"
-source = "git+https://github.com/yatima-inc/sp-cid#ee31cf01e35b2037500061f85c9b624ab88aee72"
+source = "git+https://github.com/yatima-inc/sp-cid?branch=main#36c5e19bfd986d24a2890011e036fe8cc728fd47"
 dependencies = [
  "bytecursor",
  "multibase",
@@ -1043,7 +1043,7 @@ dependencies = [
 [[package]]
 name = "sp-multihash"
 version = "0.1.0"
-source = "git+https://github.com/yatima-inc/sp-multihash#d39ee75143ac27395a6ace20861a45f2ba31638a"
+source = "git+https://github.com/yatima-inc/sp-multihash?branch=main#5013731551e5d4e77067e14891dfbdf2a1efe349"
 dependencies = [
  "blake2b_simd",
  "blake2s_simd",
@@ -1061,7 +1061,7 @@ dependencies = [
 [[package]]
 name = "sp-multihash-derive"
 version = "0.1.0"
-source = "git+https://github.com/yatima-inc/sp-multihash#d39ee75143ac27395a6ace20861a45f2ba31638a"
+source = "git+https://github.com/yatima-inc/sp-multihash?branch=main#5013731551e5d4e77067e14891dfbdf2a1efe349"
 dependencies = [
  "proc-macro-crate",
  "proc-macro-error",
