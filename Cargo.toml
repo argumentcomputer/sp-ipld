@@ -6,18 +6,21 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
+default = ["dag-cbor", "dag-json"]
+dag-cbor = ["serde"]
+dag-json = ["sp-multihash", "multibase", "byteorder"]
 std = []
 
 [dependencies]
 sp-std = { version = "3", default-features = false }
-byteorder = { version = "1", default-features = false }
+byteorder = { version = "1", default-features = false, optional = true }
 unsigned-varint = { version = "0.7.0", default-features = false }
-multibase = { version = "0.9.1", optional = true }
+multibase = { version = "0.9.1", default-features = false, optional = true }
 parity-scale-codec = { version = "2.1.1", default-features = false, features = ["derive"], optional = true }
-serde = { version = "1.0.116", optional = true }
+serde = { version = "1.0.116", optional = true, default-features = false, features = ["alloc"] }
 bytecursor = { git = "https://github.com/yatima-inc/bytecursor", branch = "main" }
-sp-cid = { git = "https://github.com/yatima-inc/sp-cid", branch = "main" }
-sp-multihash = { git = "https://github.com/yatima-inc/sp-multihash", branch = "main" }
+sp-cid = { git = "https://github.com/yatima-inc/sp-cid", branch = "main"}
+sp-multihash = { git = "https://github.com/yatima-inc/sp-multihash", branch = "main", optional = true }
 
 [dev-dependencies]
 quickcheck = "1.0.3"
