@@ -1,12 +1,12 @@
 use bytecursor::ByteCursor;
 use sp_cid::Cid;
 
+use alloc::string::String;
 use sp_std::{
   convert::TryFrom,
   ops::Deref,
   vec::Vec,
 };
-use alloc::string::String;
 
 pub struct UnsupportedCodec(pub u64);
 

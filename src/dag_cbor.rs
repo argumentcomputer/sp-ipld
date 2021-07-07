@@ -49,9 +49,7 @@ pub fn cid(x: &Ipld) -> Cid {
 #[cfg(test)]
 pub mod tests {
   use super::*;
-  use crate::{
-    ipld::*,
-  };
+  use crate::ipld::*;
   use bytecursor::ByteCursor;
   use quickcheck::{
     quickcheck,
