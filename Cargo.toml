@@ -7,8 +7,8 @@ edition = "2018"
 
 [features]
 default = ["dag-cbor", "dag-json"]
-dag-cbor = ["sp-cid", "serde"]
-dag-json = ["sp-cid", "sp-multihash", "multibase", "byteorder"]
+dag-cbor = ["serde"]
+dag-json = ["sp-multihash", "multibase", "byteorder"]
 std = []
 
 [dependencies]
@@ -19,7 +19,7 @@ multibase = { version = "0.9.1", default-features = false, optional = true }
 parity-scale-codec = { version = "2.1.1", default-features = false, features = ["derive"], optional = true }
 serde = { version = "1.0.116", optional = true, default-features = false, features = ["alloc"] }
 bytecursor = { git = "https://github.com/yatima-inc/bytecursor", branch = "main" }
-sp-cid = { git = "https://github.com/yatima-inc/sp-cid", branch = "main", optional = true }
+sp-cid = { git = "https://github.com/yatima-inc/sp-cid", branch = "main"}
 sp-multihash = { git = "https://github.com/yatima-inc/sp-multihash", branch = "main", optional = true }
 
 [dev-dependencies]
