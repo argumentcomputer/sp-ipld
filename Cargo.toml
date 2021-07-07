@@ -15,7 +15,7 @@ std = []
 sp-std = { version = "3", default-features = false }
 byteorder = { version = "1", default-features = false, optional = true }
 unsigned-varint = { version = "0.7.0", default-features = false }
-multibase = { version = "0.9.1", optional = true }
+multibase = { version = "0.9.1", default-features = false, optional = true }
 parity-scale-codec = { version = "2.1.1", default-features = false, features = ["derive"], optional = true }
 serde = { version = "1.0.116", optional = true, default-features = false, features = ["alloc"] }
 bytecursor = { git = "https://github.com/yatima-inc/bytecursor", branch = "main" }
