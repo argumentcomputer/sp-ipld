@@ -49,6 +49,8 @@ impl sp_std::fmt::Debug for Ipld {
 pub mod tests {
   use super::*;
   use crate::rand::Rng;
+  use alloc::vec;
+use sp_std::boxed::Box;
   use quickcheck::{
     Arbitrary,
     Gen,

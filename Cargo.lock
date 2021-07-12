@@ -127,6 +127,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bytecursor"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "35497ec36ac85183621f1e7c346cea37b4d9886c9abb17fdeb20dc79e36d3210"
+dependencies = [
+ "sp-std",
+]
+
+[[package]]
 name = "byteorder"
 version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1024,7 +1033,7 @@ name = "sp-cid"
 version = "0.1.0"
 source = "git+https://github.com/yatima-inc/sp-cid?branch=main#f5e9eb55b48b2f6a037198d8f3e96e28fca631cb"
 dependencies = [
- "bytecursor",
+ "bytecursor 0.1.0",
  "multibase",
  "sp-multihash",
  "sp-std",
@@ -1035,7 +1044,7 @@ dependencies = [
 name = "sp-ipld"
 version = "0.1.0"
 dependencies = [
- "bytecursor",
+ "bytecursor 0.1.2",
  "byteorder",
  "multibase",
  "parity-scale-codec",
@@ -1060,7 +1069,7 @@ dependencies = [
  "blake2b_simd",
  "blake2s_simd",
  "blake3",
- "bytecursor",
+ "bytecursor 0.1.0",
  "digest",
  "generic-array",
  "sha2",

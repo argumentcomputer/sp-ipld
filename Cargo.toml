@@ -18,7 +18,7 @@ unsigned-varint = { version = "0.7.0", default-features = false }
 multibase = { version = "0.9.1", default-features = false, optional = true }
 parity-scale-codec = { version = "2.1.1", default-features = false, features = ["derive"], optional = true }
 serde = { version = "1.0.116", optional = true, default-features = false, features = ["alloc"] }
-bytecursor = { git = "https://github.com/yatima-inc/bytecursor", branch = "main" }
+bytecursor = "0.1.2"
 sp-cid = { git = "https://github.com/yatima-inc/sp-cid", branch = "main"}
 sp-multihash = { git = "https://github.com/yatima-inc/sp-multihash", branch = "main", optional = true }
 

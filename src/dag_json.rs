@@ -1,4 +1,11 @@
+use crate::{
+  codec::*,
+  Ipld,
+  References,
+};
+use bytecursor::ByteCursor;
 use core::convert::TryFrom;
+use sp_cid::Cid;
 
 mod codec;
 
@@ -18,68 +25,32 @@ impl TryFrom<u64> for DagJsonCodec {
 }
 
 impl Encode<DagJsonCodec> for Ipld {
-  fn encode<W: Write>(&self, _: DagJsonCodec, w: &mut W) -> Result<()> {
-    Ok(codec::encode(self, w)?)
+  fn encode(&self, _: DagJsonCodec, w: &mut ByteCursor) -> Result<(), String> {
+    Ok(codec::encode(self, w).map_err(|x| x.to_string()) ?)
   }
 }
 
 impl Decode<DagJsonCodec> for Ipld {
-  fn decode<R: Read + Seek>(_: DagJsonCodec, r: &mut R) -> Result<Self> {
+  fn decode(_: DagJsonCodec, r: &mut ByteCursor) -> Result<Self, String> {
     Ok(codec::decode(r)?)
   }
 }
 
 impl References<DagJsonCodec> for Ipld {
-  fn references<R: Read + Seek, E: Extend<Cid>>(
+  fn references<E: Extend<Cid>>(
     c: DagJsonCodec,
-    r: &mut R,
+    r: &mut ByteCursor,
     set: &mut E,
-  ) -> Result<()> {
-    Ipld::decode(c, r)?.references(set);
+  ) -> Result<(), String> {
+    references(Ipld::decode(c, r)?, set);
     Ok(())
   }
 }
 
-#[cfg(test)]
-mod tests {
-  use super::*;
-  use libipld_core::{
-    cid::Cid,
-    multihash::{
-      Code,
-      MultihashDigest,
-    },
-  };
-  use std::collections::BTreeMap;
-
-  #[test]
-  fn encode_struct() {
-    let digest = Code::Blake3_256.digest(&b"block"[..]);
-    let cid = Cid::new_v1(0x55, digest);
-
-    // Create a contact object that looks like:
-    // Contact { name: "Hello World", details: CID }
-    let mut map = BTreeMap::new();
-    map.insert("name".to_string(), Ipld::String("Hello World!".to_string()));
-    map.insert("details".to_string(), Ipld::Link(cid));
-    let contact = Ipld::StringMap(map);
-
-    let contact_encoded = DagJsonCodec.encode(&contact).unwrap();
-    println!("encoded: {:02x?}", contact_encoded);
-    println!(
-      "encoded string {}",
-      std::str::from_utf8(&contact_encoded).unwrap()
-    );
-
-    assert_eq!(
-      std::str::from_utf8(&contact_encoded).unwrap(),
-      format!(
-        r#"{{"details":{{"/":"{}"}},"name":"Hello World!"}}"#,
-        base64::encode(cid.to_bytes()),
-      )
-    );
-
-    let contact_decoded: Ipld = DagJsonCodec.decode(&contact_encoded).unwrap();
-    assert_eq!(contact_decoded, contact);
-  }
+pub fn cid(x: &Ipld) -> Cid {
+  Cid::new_v1(
+    0x71,
+    Code::Blake2b256
+      .digest(DagJsonCodec.encode(x).unwrap().into_inner().as_ref()),
+  )
 }

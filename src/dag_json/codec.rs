@@ -1,4 +1,4 @@
-use super::ipld::Ipld;
+use crate::Ipld;
 use core::convert::TryFrom;
 use serde::{
   de,
@@ -13,9 +13,10 @@ use serde_json::{
 };
 use sp_cid::Cid;
 use sp_std::{
-  collections::BTreeMap,
+  collections::btree_map::BTreeMap,
   fmt,
 };
+use bytecursor::ByteCursor;
 
 const LINK_KEY: &str = "/";
 
