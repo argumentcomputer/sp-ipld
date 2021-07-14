@@ -10,10 +10,13 @@ use crate::{
 
 use alloc::{
   borrow::ToOwned,
-  string::{String, ToString},
+  format,
+  string::{
+    String,
+    ToString,
+  },
   sync::Arc,
   vec,
-  format,
 };
 use byteorder::{
   BigEndian,
@@ -22,10 +25,10 @@ use byteorder::{
 
 use sp_std::{
   any::type_name,
+  boxed::Box,
   collections::btree_map::BTreeMap,
   convert::TryFrom,
   vec::Vec,
-  boxed::Box,
 };
 
 use bytecursor::{

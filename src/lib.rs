@@ -11,13 +11,17 @@ extern crate quickcheck_macros;
 extern crate rand;
 
 pub mod codec;
+#[cfg(feature = "dag_cbor")]
 pub mod dag_cbor;
+#[cfg(feature = "dag_json")]
+pub mod dag_json;
 pub mod ipld;
 
 pub use codec::*;
 pub use ipld::*;
 
 #[cfg(test)]
+#[cfg(feature = "dag_json")]
 pub mod tests {
   use super::{
     codec::*,
@@ -45,7 +49,7 @@ pub mod tests {
     let client = reqwest::Client::new();
     let form =
       multipart::Form::new().part("file", multipart::Part::bytes(cbor));
-    let response: serde_json::Value =
+    let response: _json::Value =
       client.post(url).multipart(form).send().await?.json().await?;
     println!("response: {:?}", response);
 
