@@ -80,7 +80,7 @@ pub mod tests {
       "{}{}?{}",
       host,
       "/api/v0/dag/put",
-      "format=cbor&pin=true&input-enc=json&hash=blake2b-256"
+      "format=dag-cbor&pin=true&input-enc=json&hash=blake2b-256"
     );
     let cbor = DagJsonCodec.encode(&dag).unwrap().into_inner();
     let client = reqwest::Client::new();
@@ -91,7 +91,7 @@ pub mod tests {
     println!("response: {:?}", response);
 
     let ipfs_cid: String = response["Cid"]["/"].as_str().unwrap().to_string();
-    let local_cid: String = dag_json::cid(&dag).to_string();
+    let local_cid: String = dag_cbor::cid(&dag).to_string();
 
     if ipfs_cid == local_cid {
       Ok(ipfs_cid)
@@ -105,7 +105,7 @@ pub mod tests {
   pub async fn dag_get_cbor(cid: String) -> Result<Ipld, reqwest::Error> {
     let host = "http://127.0.0.1:5001";
     let url =
-      format!("{}{}?arg={}", host, "/api/v0/block/get", cid.to_string());
+      format!("{}{}?arg={}", host, "/api/v0/dag/get", cid.to_string());
     let client = reqwest::Client::new();
     let response = client.post(url).send().await?.bytes().await?;
     let response = response.to_vec();
@@ -122,7 +122,7 @@ pub mod tests {
   pub async fn dag_get_json(cid: String) -> Result<Ipld, reqwest::Error> {
     let host = "http://127.0.0.1:5001";
     let url =
-      format!("{}{}?arg={}", host, "/api/v0/block/get", cid.to_string());
+      format!("{}{}?arg={}", host, "/api/v0/dag/get", cid.to_string());
     let client = reqwest::Client::new();
     let response = client.post(url).send().await?.bytes().await?;
     let response = response.to_vec();
@@ -167,7 +167,7 @@ pub mod tests {
     match dag_put_json(ipld.clone()).await {
       Ok(cid) => match dag_get_json(cid.clone()).await {
         Ok(new_ipld) => {
-          if ipld.clone() == new_ipld.clone() {
+          if ipld.clone() == new_ipld {
             true
           }
           else {

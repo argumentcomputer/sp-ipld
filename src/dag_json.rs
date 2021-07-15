@@ -1,8 +1,4 @@
-use crate::{
-  codec::*,
-  Ipld,
-  References,
-};
+use crate::{Ipld, References, codec::*};
 use alloc::string::{
   String,
   ToString,

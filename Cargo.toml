@@ -7,8 +7,8 @@ edition = "2018"
 
 [features]
 default = ["std", "dag-cbor", "dag-json"]
-dag-cbor = ["serde"]
-dag-json = ["sp-multihash", "multibase", "byteorder", "base64"]
+dag-json = ["serde", "base64", "sp-multihash"]
+dag-cbor = ["multibase", "byteorder", "sp-multihash"]
 #TODO: Add std features
 std = []
 

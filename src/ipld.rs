@@ -1,6 +1,7 @@
 use alloc::{
   borrow::ToOwned,
   string::String,
+  vec
 };
 use sp_cid::Cid;
 use sp_std::{
