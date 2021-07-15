@@ -3,9 +3,17 @@ use crate::{
   Ipld,
   References,
 };
+use alloc::string::{
+  String,
+  ToString,
+};
 use bytecursor::ByteCursor;
 use core::convert::TryFrom;
 use sp_cid::Cid;
+use sp_multihash::{
+  Code,
+  MultihashDigest,
+};
 
 mod codec;
 
@@ -26,13 +34,16 @@ impl TryFrom<u64> for DagJsonCodec {
 
 impl Encode<DagJsonCodec> for Ipld {
   fn encode(&self, _: DagJsonCodec, w: &mut ByteCursor) -> Result<(), String> {
-    Ok(codec::encode(self, w).map_err(|x| x.to_string()) ?)
+    Ok(codec::encode(self, w).map_err(|x| x.to_string())?)
   }
 }
 
 impl Decode<DagJsonCodec> for Ipld {
   fn decode(_: DagJsonCodec, r: &mut ByteCursor) -> Result<Self, String> {
-    Ok(codec::decode(r)?)
+    match codec::decode(r) {
+      Ok(ipld) => Ok(ipld),
+      Err(_) => Err(String::from("Failed to decode JSON")),
+    }
   }
 }
 
@@ -42,7 +53,7 @@ impl References<DagJsonCodec> for Ipld {
     r: &mut ByteCursor,
     set: &mut E,
   ) -> Result<(), String> {
-    references(Ipld::decode(c, r)?, set);
+    Ipld::decode(c, r)?.references(set);
     Ok(())
   }
 }

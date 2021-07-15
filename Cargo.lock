@@ -120,14 +120,6 @@ checksum = "65c1bf4a04a88c54f589125563643d773f3254b5c38571395e2b591c693bbc81"
 
 [[package]]
 name = "bytecursor"
-version = "0.1.0"
-source = "git+https://github.com/yatima-inc/bytecursor?branch=main#ceddcf7148286582bdec89a9490a362fb602f4ff"
-dependencies = [
- "sp-std",
-]
-
-[[package]]
-name = "bytecursor"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "35497ec36ac85183621f1e7c346cea37b4d9886c9abb17fdeb20dc79e36d3210"
@@ -963,6 +955,20 @@ name = "serde"
 version = "1.0.126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec7505abeacaec74ae4778d9d9328fe5a5d04253220a85c4ee022239fc996d03"
+dependencies = [
+ "serde_derive",
+]
+
+[[package]]
+name = "serde_derive"
+version = "1.0.126"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "963a7dbc9895aeac7ac90e74f34a5d5261828f79df35cbed41e10189d3804d43"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "serde_json"
@@ -1031,9 +1037,10 @@ dependencies = [
 [[package]]
 name = "sp-cid"
 version = "0.1.0"
-source = "git+https://github.com/yatima-inc/sp-cid?branch=main#f5e9eb55b48b2f6a037198d8f3e96e28fca631cb"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da843dbbf2ad94e34a4391b03123399dcd6a5339aa1884d5d81972d2ece64d41"
 dependencies = [
- "bytecursor 0.1.0",
+ "bytecursor",
  "multibase",
  "sp-multihash",
  "sp-std",
@@ -1044,7 +1051,8 @@ dependencies = [
 name = "sp-ipld"
 version = "0.1.0"
 dependencies = [
- "bytecursor 0.1.2",
+ "base64",
+ "bytecursor",
  "byteorder",
  "multibase",
  "parity-scale-codec",
@@ -1064,12 +1072,13 @@ dependencies = [
 [[package]]
 name = "sp-multihash"
 version = "0.1.0"
-source = "git+https://github.com/yatima-inc/sp-multihash?branch=main#5013731551e5d4e77067e14891dfbdf2a1efe349"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c74624433a8926e495041e78f8414771067895e0e2608c22b1771792714001ee"
 dependencies = [
  "blake2b_simd",
  "blake2s_simd",
  "blake3",
- "bytecursor 0.1.0",
+ "bytecursor",
  "digest",
  "generic-array",
  "sha2",
@@ -1082,7 +1091,8 @@ dependencies = [
 [[package]]
 name = "sp-multihash-derive"
 version = "0.1.0"
-source = "git+https://github.com/yatima-inc/sp-multihash?branch=main#5013731551e5d4e77067e14891dfbdf2a1efe349"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "50f2fec51df320e33df53351cb5a11ca60257b4915f6a76efb667f2ea0662fc2"
 dependencies = [
  "proc-macro-crate",
  "proc-macro-error",

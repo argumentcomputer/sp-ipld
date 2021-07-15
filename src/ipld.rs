@@ -1,7 +1,11 @@
-use alloc::string::String;
+use alloc::{
+  borrow::ToOwned,
+  string::String,
+};
 use sp_cid::Cid;
 use sp_std::{
   self,
+  boxed::Box,
   collections::btree_map::BTreeMap,
   vec::Vec,
 };
@@ -45,12 +49,69 @@ impl sp_std::fmt::Debug for Ipld {
   }
 }
 
+impl Ipld {
+  /// Returns an iterator.
+  pub fn iter(&self) -> IpldIter<'_> {
+    IpldIter { stack: vec![Box::new(vec![self].into_iter())] }
+  }
+
+  /// Returns the references to other blocks.
+  pub fn references<E: Extend<Cid>>(&self, set: &mut E) {
+    for ipld in self.iter() {
+      if let Ipld::Link(cid) = ipld {
+        set.extend(sp_std::iter::once(cid.to_owned()));
+      }
+    }
+  }
+}
+
+impl<'a> Iterator for IpldIter<'a> {
+  type Item = &'a Ipld;
+
+  fn next(&mut self) -> Option<Self::Item> {
+    loop {
+      if let Some(iter) = self.stack.last_mut() {
+        if let Some(ipld) = iter.next() {
+          match ipld {
+            Ipld::List(list) => {
+              self.stack.push(Box::new(list.iter()));
+            }
+            Ipld::StringMap(map) => {
+              self.stack.push(Box::new(map.values()));
+            }
+            #[cfg(feature = "unleashed")]
+            Ipld::IntegerMap(map) => {
+              self.stack.push(Box::new(map.values()));
+            }
+            #[cfg(feature = "unleashed")]
+            Ipld::Tag(_, ipld) => {
+              self.stack.push(Box::new(ipld.iter()));
+            }
+            _ => {}
+          }
+          return Some(ipld);
+        }
+        else {
+          self.stack.pop();
+        }
+      }
+      else {
+        return None;
+      }
+    }
+  }
+}
+
+/// Ipld iterator.
+pub struct IpldIter<'a> {
+  stack: Vec<Box<dyn Iterator<Item = &'a Ipld> + 'a>>,
+}
+
 #[cfg(test)]
 pub mod tests {
   use super::*;
   use crate::rand::Rng;
   use alloc::vec;
-use sp_std::boxed::Box;
   use quickcheck::{
     Arbitrary,
     Gen,
@@ -59,6 +120,7 @@ use sp_std::boxed::Box;
     Code,
     MultihashDigest,
   };
+  use sp_std::boxed::Box;
 
   pub fn arbitrary_cid(g: &mut Gen) -> Cid {
     let mut bytes: [u8; 32] = [0; 32];

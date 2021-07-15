@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(any(feature = "std", test)), no_std)]
 extern crate alloc;
 extern crate sp_std;
 
@@ -22,13 +22,19 @@ pub use ipld::*;
 
 #[cfg(test)]
 pub mod tests {
-  #[cfg(feature = "dag-cbor")]
-  use super::dag_cbor::DagCborCodec;
-  #[cfg(feature = "dag-json")]
-  use super::dag_json::DagJsonCodec;
   use super::{
     codec::*,
     Ipld,
+  };
+  #[cfg(feature = "dag-cbor")]
+  use super::{
+    dag_cbor,
+    dag_cbor::DagCborCodec,
+  };
+  #[cfg(feature = "dag-json")]
+  use super::{
+    dag_json,
+    dag_json::DagJsonCodec,
   };
   use bytecursor::ByteCursor;
   use quickcheck::{
@@ -52,7 +58,7 @@ pub mod tests {
     let client = reqwest::Client::new();
     let form =
       multipart::Form::new().part("file", multipart::Part::bytes(cbor));
-    let response: _json::Value =
+    let response: serde_json::Value =
       client.post(url).multipart(form).send().await?.json().await?;
     println!("response: {:?}", response);
 
@@ -80,7 +86,7 @@ pub mod tests {
     let client = reqwest::Client::new();
     let form =
       multipart::Form::new().part("file", multipart::Part::bytes(cbor));
-    let response: _json::Value =
+    let response: serde_json::Value =
       client.post(url).multipart(form).send().await?.json().await?;
     println!("response: {:?}", response);
 

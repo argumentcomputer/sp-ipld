@@ -1,4 +1,9 @@
 use crate::Ipld;
+use alloc::{
+  borrow::ToOwned,
+  string::String,
+};
+use bytecursor::ByteCursor;
 use core::convert::TryFrom;
 use serde::{
   de,
@@ -15,19 +20,20 @@ use sp_cid::Cid;
 use sp_std::{
   collections::btree_map::BTreeMap,
   fmt,
+  vec::Vec,
 };
-use bytecursor::ByteCursor;
 
 const LINK_KEY: &str = "/";
 
 pub fn encode(ipld: &Ipld, writer: &mut ByteCursor) -> Result<(), Error> {
-  let mut ser = Serializer::new(writer);
+  let mut buf = writer.get_mut();
+  let mut ser = Serializer::new(&mut buf);
   serialize(&ipld, &mut ser)?;
   Ok(())
 }
 
 pub fn decode(r: &mut ByteCursor) -> Result<Ipld, Error> {
-  let mut de = serde_json::Deserializer::from_reader(r);
+  let mut de = serde_json::Deserializer::from_slice(r.get_ref());
   deserialize(&mut de)
 }
 
@@ -62,7 +68,7 @@ fn serialize<S: ser::Serializer>(
       ser.collect_map(map)
     }
     Ipld::Link(link) => {
-      let value = base64::encode(&link.to_bytes());
+      let value = base64::encode(link.to_bytes());
       let mut map = BTreeMap::new();
       map.insert("/", value);
 
@@ -172,7 +178,7 @@ impl<'de> de::Visitor<'de> for JsonVisitor {
     // we valiadet if that is the case here.
     if let Some((key, WrapperOwned(Ipld::String(value)))) = values.first() {
       if key == LINK_KEY && values.len() == 1 {
-        let link = base64::decode(value).map_err(SerdeError::custom)?;
+        let link = base64::decode(&value).map_err(SerdeError::custom)?;
         let cid = Cid::try_from(link).map_err(SerdeError::custom)?;
         return Ok(Ipld::Link(cid));
       }
