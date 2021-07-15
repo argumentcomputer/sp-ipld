@@ -129,7 +129,7 @@ pub mod tests {
     println!("response: {:?}", response);
     let ipld = DagJsonCodec
       .decode(ByteCursor::new(response))
-      .expect("invalid ipld cbor.");
+      .expect("invalid ipld json.");
     println!("ipld: {:?}", ipld);
 
     Ok(ipld)

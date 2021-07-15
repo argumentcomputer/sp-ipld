@@ -60,7 +60,7 @@ impl References<DagJsonCodec> for Ipld {
 
 pub fn cid(x: &Ipld) -> Cid {
   Cid::new_v1(
-    0x71,
+    0x0129,
     Code::Blake2b256
       .digest(DagJsonCodec.encode(x).unwrap().into_inner().as_ref()),
   )
