@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(any(feature = "std", test)), no_std)]
 extern crate alloc;
 extern crate sp_std;
 
@@ -11,7 +11,7 @@ extern crate quickcheck_macros;
 extern crate rand;
 
 pub mod codec;
-#[cfg(feature = "dag_cbor")]
+#[cfg(feature = "dag-cbor")]
 pub mod dag_cbor;
 #[cfg(feature = "dag_json")]
 pub mod dag_json;
@@ -21,7 +21,7 @@ pub use codec::*;
 pub use ipld::*;
 
 #[cfg(test)]
-#[cfg(feature = "dag_json")]
+//#[cfg(feature = "dag_json")]
 pub mod tests {
   use super::{
     codec::*,
@@ -49,7 +49,7 @@ pub mod tests {
     let client = reqwest::Client::new();
     let form =
       multipart::Form::new().part("file", multipart::Part::bytes(cbor));
-    let response: _json::Value =
+    let response: serde_json::Value =
       client.post(url).multipart(form).send().await?.json().await?;
     println!("response: {:?}", response);
 
