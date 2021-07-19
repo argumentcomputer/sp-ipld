@@ -1,4 +1,8 @@
-use crate::{Ipld, References, codec::*};
+use crate::{
+  codec::*,
+  Ipld,
+  References,
+};
 use alloc::string::{
   String,
   ToString,
@@ -30,7 +34,7 @@ impl TryFrom<u64> for DagJsonCodec {
 
 impl Encode<DagJsonCodec> for Ipld {
   fn encode(&self, _: DagJsonCodec, w: &mut ByteCursor) -> Result<(), String> {
-    Ok(codec::encode(self, w).map_err(|x| x.to_string())?)
+    codec::encode(self, w).map_err(|x| x.to_string())
   }
 }
 
@@ -60,4 +64,75 @@ pub fn cid(x: &Ipld) -> Cid {
     Code::Blake2b256
       .digest(DagJsonCodec.encode(x).unwrap().into_inner().as_ref()),
   )
+}
+
+#[cfg(test)]
+pub mod tests {
+  use super::*;
+  use crate::ipld::*;
+  use bytecursor::ByteCursor;
+  use quickcheck::{
+    quickcheck,
+    Arbitrary,
+    Gen,
+  };
+
+  use sp_std::collections::btree_map::BTreeMap;
+
+  fn encode_decode_id<
+    T: Encode<DagJsonCodec> + Decode<DagJsonCodec> + PartialEq<T> + Clone,
+  >(
+    value: T,
+  ) -> bool {
+    let mut bc = ByteCursor::new(Vec::new());
+    match Encode::encode(&value, DagJsonCodec, &mut bc) {
+      Ok(()) => {
+        bc.set_position(0);
+        match Decode::decode(DagJsonCodec, &mut bc) {
+          Ok(new_value) => return value == new_value,
+          Err(e) => println!("Error occurred during decoding: {}", e),
+        }
+      }
+      Err(e) => println!("Error occurred during encoding: {}", e),
+    }
+    false
+  }
+
+  #[quickcheck]
+  pub fn edid_null() -> bool { encode_decode_id(Ipld::Null) }
+
+  #[quickcheck]
+  pub fn edid_bool(x: bool) -> bool { encode_decode_id(Ipld::Bool(x)) }
+
+  #[quickcheck]
+  pub fn edid_integer(x: i64) -> bool {
+    encode_decode_id(Ipld::Integer(x as i128))
+  }
+
+  #[quickcheck]
+  pub fn edid_bytes(x: Vec<u8>) -> bool { encode_decode_id(Ipld::Bytes(x)) }
+
+  #[quickcheck]
+  pub fn edid_string(x: String) -> bool { encode_decode_id(Ipld::String(x)) }
+
+  // fails on `Vec<Float(inf)>`
+  #[quickcheck]
+  pub fn edid_list(x: Vec<Ipld>) -> bool { encode_decode_id(Ipld::List(x)) }
+
+  #[quickcheck]
+  pub fn edid_string_map(x: BTreeMap<String, Ipld>) -> bool {
+    encode_decode_id(Ipld::StringMap(x))
+  }
+
+  #[derive(Debug, Clone)]
+  pub struct ACid(pub Cid);
+
+  impl Arbitrary for ACid {
+    fn arbitrary(g: &mut Gen) -> Self {
+      ACid(crate::ipld::tests::arbitrary_cid(g))
+    }
+  }
+
+  #[quickcheck]
+  pub fn edid_link(x: ACid) -> bool { encode_decode_id(Ipld::Link(x.0)) }
 }

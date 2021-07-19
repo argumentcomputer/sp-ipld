@@ -33,7 +33,6 @@ pub mod tests {
   };
   #[cfg(feature = "dag-json")]
   use super::{
-    dag_json,
     dag_json::DagJsonCodec,
   };
   use bytecursor::ByteCursor;
@@ -52,7 +51,7 @@ pub mod tests {
       "{}{}?{}",
       host,
       "/api/v0/dag/put",
-      "format=cbor&pin=true&input-enc=cbor&hash=blake2b-256"
+      "format=dag-cbor&pin=true&input-enc=cbor&hash=blake2b-256"
     );
     let cbor = DagCborCodec.encode(&dag).unwrap().into_inner();
     let client = reqwest::Client::new();
@@ -140,23 +139,23 @@ pub mod tests {
     match dag_put_cbor(ipld.clone()).await {
       Ok(cid) => match dag_get_cbor(cid.clone()).await {
         Ok(new_ipld) => {
-          if ipld.clone() == new_ipld.clone() {
+          if ipld.clone() == new_ipld {
             true
           }
           else {
-            eprintln!("Cid: {}", cid);
-            eprintln!("Encoded ipld: {:?}", ipld);
-            eprintln!("Decoded ipld: {:?}", new_ipld);
+            println!("Cid: {}", cid);
+            println!("Encoded ipld: {:?}", ipld);
+            println!("Decoded ipld: {:?}", new_ipld);
             false
           }
         }
         Err(e) => {
-          eprintln!("Error during `dag_get`: {}", e);
+          println!("Error during `dag_get`: {}", e);
           false
         }
       },
       Err(e) => {
-        eprintln!("Error during `dag_put`: {}", e);
+        println!("Error during `dag_put`: {}", e);
         false
       }
     }
@@ -171,19 +170,19 @@ pub mod tests {
             true
           }
           else {
-            eprintln!("Cid: {}", cid);
-            eprintln!("Encoded ipld: {:?}", ipld);
-            eprintln!("Decoded ipld: {:?}", new_ipld);
+            println!("Cid: {}", cid);
+            println!("Encoded ipld: {:?}", ipld);
+            println!("Decoded ipld: {:?}", new_ipld);
             false
           }
         }
         Err(e) => {
-          eprintln!("Error during `dag_get`: {}", e);
+          println!("Error during `dag_get`: {}", e);
           false
         }
       },
       Err(e) => {
-        eprintln!("Error during `dag_put`: {}", e);
+        println!("Error during `dag_put`: {}", e);
         false
       }
     }
@@ -194,7 +193,7 @@ pub mod tests {
     match Runtime::new() {
       Ok(runtime) => runtime.block_on(async_ipld_ipfs_cbor(ipld)),
       Err(e) => {
-        eprintln!("Error creating runtime: {}", e);
+        println!("Error creating runtime: {}", e);
         false
       }
     }
@@ -205,7 +204,7 @@ pub mod tests {
     match Runtime::new() {
       Ok(runtime) => runtime.block_on(async_ipld_ipfs_json(ipld)),
       Err(e) => {
-        eprintln!("Error creating runtime: {}", e);
+        println!("Error creating runtime: {}", e);
         false
       }
     }
@@ -241,12 +240,10 @@ pub mod tests {
   #[quickcheck]
   fn string_ipfs_json(x: String) -> bool { ipld_ipfs_json(Ipld::String(x)) }
 
-  use crate::ipld::tests::arbitrary_i128;
-
   #[derive(Debug, Clone)]
   struct AInt(pub i128);
   impl Arbitrary for AInt {
-    fn arbitrary(g: &mut Gen) -> Self { AInt(arbitrary_i128()(g)) }
+    fn arbitrary(g: &mut Gen) -> Self { AInt(i64::arbitrary(g) as i128) }
   }
 
   #[cfg(feature = "dag-cbor")]
@@ -255,8 +252,8 @@ pub mod tests {
   fn integers_ipfs_cbor() {
     assert!(ipld_ipfs_cbor(Ipld::Integer(0i128)));
     assert!(ipld_ipfs_cbor(Ipld::Integer(1i128)));
-    assert!(ipld_ipfs_cbor(Ipld::Integer(u64::MAX as i128)));
-    assert!(ipld_ipfs_cbor(Ipld::Integer(i64::MAX as i128 + 1)));
+    assert!(ipld_ipfs_cbor(Ipld::Integer(i64::MAX as i128)));
+    assert!(ipld_ipfs_cbor(Ipld::Integer(i64::MIN as i128)));
   }
 
   #[cfg(feature = "dag-json")]
@@ -265,8 +262,8 @@ pub mod tests {
   fn integers_ipfs_json() {
     assert!(ipld_ipfs_json(Ipld::Integer(0i128)));
     assert!(ipld_ipfs_json(Ipld::Integer(1i128)));
-    assert!(ipld_ipfs_json(Ipld::Integer(u64::MAX as i128)));
-    assert!(ipld_ipfs_json(Ipld::Integer(i64::MAX as i128 + 1)));
+    assert!(ipld_ipfs_json(Ipld::Integer(i64::MAX as i128)));
+    assert!(ipld_ipfs_json(Ipld::Integer(i64::MIN as i128)));
   }
 
   #[cfg(feature = "dag-cbor")]

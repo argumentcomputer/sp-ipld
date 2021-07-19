@@ -191,10 +191,6 @@ pub mod tests {
     Box::new(move |g: &mut Gen| Ipld::Bytes(Arbitrary::arbitrary(g)))
   }
 
-  fn arbitrary_float() -> Box<dyn Fn(&mut Gen) -> Ipld> {
-    Box::new(move |g: &mut Gen| Ipld::Float(Arbitrary::arbitrary(g)))
-  }
-
   pub fn arbitrary_list() -> Box<dyn Fn(&mut Gen) -> Ipld> {
     Box::new(move |g: &mut Gen| {
       let mut rng = rand::thread_rng();

@@ -28,7 +28,7 @@ const LINK_KEY: &str = "/";
 pub fn encode(ipld: &Ipld, writer: &mut ByteCursor) -> Result<(), Error> {
   let mut buf = writer.get_mut();
   let mut ser = Serializer::new(&mut buf);
-  serialize(&ipld, &mut ser)?;
+  serialize(ipld, &mut ser)?;
   Ok(())
 }
 
@@ -46,8 +46,8 @@ fn serialize<S: ser::Serializer>(
     Ipld::Bool(bool) => ser.serialize_bool(*bool),
     Ipld::Integer(i128) => ser.serialize_i128(*i128),
     Ipld::Float(f64) => ser.serialize_f64(*f64),
-    Ipld::String(string) => ser.serialize_str(&string),
-    Ipld::Bytes(bytes) => ser.serialize_bytes(&bytes),
+    Ipld::String(string) => ser.serialize_str(string),
+    Ipld::Bytes(bytes) => ser.serialize_bytes(bytes),
     Ipld::List(list) => {
       let wrapped = list.iter().map(|ipld| Wrapper(ipld));
       ser.collect_seq(wrapped)
@@ -90,7 +90,7 @@ struct Wrapper<'a>(&'a Ipld);
 impl<'a> Serialize for Wrapper<'a> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where S: ser::Serializer {
-    serialize(&self.0, serializer)
+    serialize(self.0, serializer)
   }
 }
 

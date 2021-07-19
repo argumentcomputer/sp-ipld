@@ -61,15 +61,15 @@ pub mod tests {
 
   fn encode_decode_id<T: DagCbor + PartialEq<T> + Clone>(value: T) -> bool {
     let mut bc = ByteCursor::new(Vec::new());
-    match Encode::encode(&value.clone(), DagCborCodec, &mut bc) {
+    match Encode::encode(&value, DagCborCodec, &mut bc) {
       Ok(()) => {
         bc.set_position(0);
         match Decode::decode(DagCborCodec, &mut bc) {
           Ok(new_value) => return value == new_value,
-          Err(e) => eprintln!("Error occurred during decoding: {}", e),
+          Err(e) => println!("Error occurred during decoding: {}", e),
         }
       }
-      Err(e) => eprintln!("Error occurred during encoding: {}", e),
+      Err(e) => println!("Error occurred during encoding: {}", e),
     }
     false
   }
