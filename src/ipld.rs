@@ -167,15 +167,7 @@ pub mod tests {
 
   pub fn arbitrary_i128() -> Box<dyn Fn(&mut Gen) -> i128> {
     Box::new(move |g: &mut Gen| {
-      let sgn: bool = Arbitrary::arbitrary(g);
-      if sgn {
-        let x: u64 = Arbitrary::arbitrary(g);
-        x as i128
-      }
-      else {
-        let x: i64 = Arbitrary::arbitrary(g);
-        if x.is_positive() { -x as i128 } else { x as i128 }
-      }
+      i64::arbitrary(g) as i128
     })
   }
 

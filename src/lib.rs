@@ -59,7 +59,7 @@ pub mod tests {
       multipart::Form::new().part("file", multipart::Part::bytes(cbor));
     let response: serde_json::Value =
       client.post(url).multipart(form).send().await?.json().await?;
-    println!("response: {:?}", response);
+    println!("PUT response: {:?}", response);
 
     let ipfs_cid: String = response["Cid"]["/"].as_str().unwrap().to_string();
     let local_cid: String = dag_cbor::cid(&dag).to_string();
@@ -108,7 +108,7 @@ pub mod tests {
     let client = reqwest::Client::new();
     let response = client.post(url).send().await?.bytes().await?;
     let response = response.to_vec();
-    println!("response: {:?}", response);
+    println!("GET response: {:?}", response);
     let ipld = DagCborCodec
       .decode(ByteCursor::new(response))
       .expect("invalid ipld cbor.");
