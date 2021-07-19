@@ -105,7 +105,7 @@ pub mod tests {
   pub async fn dag_get_cbor(cid: String) -> Result<Ipld, reqwest::Error> {
     let host = "http://127.0.0.1:5001";
     let url =
-      format!("{}{}?arg={}", host, "/api/v0/dag/get", cid.to_string());
+      format!("{}{}?arg={}", host, "/api/v0/block/get", cid.to_string());
     let client = reqwest::Client::new();
     let response = client.post(url).send().await?.bytes().await?;
     let response = response.to_vec();
