@@ -23,7 +23,7 @@ use sp_std::{
   vec::Vec,
 };
 
-const LINK_KEY: &str = "/";
+const SPECIAL_KEY: &str = "/";
 
 pub fn encode(ipld: &Ipld, writer: &mut ByteCursor) -> Result<(), Error> {
   let mut buf = writer.get_mut();
@@ -47,7 +47,15 @@ fn serialize<S: ser::Serializer>(
     Ipld::Integer(i128) => ser.serialize_i128(*i128),
     Ipld::Float(f64) => ser.serialize_f64(*f64),
     Ipld::String(string) => ser.serialize_str(string),
-    Ipld::Bytes(bytes) => ser.serialize_bytes(bytes),
+    Ipld::Bytes(bytes) => {
+      let value = base64::encode(bytes);
+      let mut inner_map = BTreeMap::new();
+      inner_map.insert("bytes".to_string(), value);
+      let mut map = BTreeMap::new();
+      map.insert(SPECIAL_KEY, inner_map);
+
+      ser.collect_map(map)
+    }
     Ipld::List(list) => {
       let wrapped = list.iter().map(|ipld| Wrapper(ipld));
       ser.collect_seq(wrapped)
@@ -56,21 +64,10 @@ fn serialize<S: ser::Serializer>(
       let wrapped = map.iter().map(|(key, ipld)| (key, Wrapper(ipld)));
       ser.collect_map(wrapped)
     }
-    #[cfg(feature = "unleashed")]
-    Ipld::IntegerMap(map) => {
-      let wrapped = map.iter().map(|(key, ipld)| (key, Wrapper(ipld)));
-      ser.collect_map(wrapped)
-    }
-    #[cfg(feature = "unleashed")]
-    Ipld::Tag(tag, ipld) => {
-      let mut map = BTreeMap::new();
-      map.insert("/", (tag, Wrapper(ipld)));
-      ser.collect_map(map)
-    }
     Ipld::Link(link) => {
       let value = base64::encode(link.to_bytes());
       let mut map = BTreeMap::new();
-      map.insert("/", value);
+      map.insert(SPECIAL_KEY, value);
 
       ser.collect_map(map)
     }
@@ -177,10 +174,19 @@ impl<'de> de::Visitor<'de> for JsonVisitor {
     // JSON Object represents IPLD Link if it is `{ "/": "...." }` therefor
     // we valiadet if that is the case here.
     if let Some((key, WrapperOwned(Ipld::String(value)))) = values.first() {
-      if key == LINK_KEY && values.len() == 1 {
+      if key == SPECIAL_KEY && values.len() == 1 {
         let link = base64::decode(&value).map_err(SerdeError::custom)?;
         let cid = Cid::try_from(link).map_err(SerdeError::custom)?;
         return Ok(Ipld::Link(cid));
+      }
+    }
+
+    if let Some((first_key, WrapperOwned(Ipld::StringMap(map)))) = values.first() {
+      if let Some((key, Ipld::String(value))) = map.first_key_value() {
+        if first_key == SPECIAL_KEY && key == "bytes" && values.len() == 1 {
+          let bytes = base64::decode(value).map_err(SerdeError::custom)?;
+          return Ok(Ipld::Bytes(bytes));
+        }
       }
     }
 

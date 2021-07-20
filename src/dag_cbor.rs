@@ -81,9 +81,8 @@ pub mod tests {
   pub fn edid_bool(x: bool) -> bool { encode_decode_id(Ipld::Bool(x)) }
 
   #[quickcheck]
-  pub fn edid_integer(x: u64, sign: bool) -> bool {
-    let number = if sign { x as i128 } else { -(x as i128 - 1) };
-    encode_decode_id(Ipld::Integer(number))
+  pub fn edid_integer(x: i64) -> bool {
+    encode_decode_id(Ipld::Integer(x as i128))
   }
 
   #[quickcheck]
