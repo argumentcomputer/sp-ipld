@@ -1,7 +1,7 @@
 use alloc::{
   borrow::ToOwned,
   string::String,
-  vec
+  vec,
 };
 use sp_cid::Cid;
 use sp_std::{
@@ -11,6 +11,7 @@ use sp_std::{
   vec::Vec,
 };
 
+/// TODO
 #[derive(Clone, PartialEq)]
 pub enum Ipld {
   /// Represents the absence of a value or the value undefined.
@@ -51,11 +52,15 @@ impl sp_std::fmt::Debug for Ipld {
 }
 
 impl Ipld {
+  /// TODO
+  ///
   /// Returns an iterator.
   pub fn iter(&self) -> IpldIter<'_> {
     IpldIter { stack: vec![Box::new(vec![self].into_iter())] }
   }
 
+  /// TODO
+  ///
   /// Returns the references to other blocks.
   pub fn references<E: Extend<Cid>>(&self, set: &mut E) {
     for ipld in self.iter() {
@@ -103,6 +108,8 @@ impl<'a> Iterator for IpldIter<'a> {
   }
 }
 
+/// TODO
+///
 /// Ipld iterator.
 pub struct IpldIter<'a> {
   stack: Vec<Box<dyn Iterator<Item = &'a Ipld> + 'a>>,
@@ -123,7 +130,7 @@ pub mod tests {
   };
   use sp_std::boxed::Box;
 
-  pub fn arbitrary_cid(g: &mut Gen) -> Cid {
+  pub(crate) fn arbitrary_cid(g: &mut Gen) -> Cid {
     let mut bytes: [u8; 32] = [0; 32];
     for x in bytes.iter_mut() {
       *x = Arbitrary::arbitrary(g);
@@ -131,7 +138,7 @@ pub mod tests {
     Cid::new_v1(0x55, Code::Blake2b256.digest(&bytes))
   }
 
-  pub fn frequency<T, F: Fn(&mut Gen) -> T>(
+  fn frequency<T, F: Fn(&mut Gen) -> T>(
     g: &mut Gen,
     gens: Vec<(i64, F)>,
   ) -> T {
@@ -166,9 +173,7 @@ pub mod tests {
   }
 
   pub fn arbitrary_i128() -> Box<dyn Fn(&mut Gen) -> i128> {
-    Box::new(move |g: &mut Gen| {
-      i64::arbitrary(g) as i128
-    })
+    Box::new(move |g: &mut Gen| i64::arbitrary(g) as i128)
   }
 
   pub fn arbitrary_integer() -> Box<dyn Fn(&mut Gen) -> Ipld> {

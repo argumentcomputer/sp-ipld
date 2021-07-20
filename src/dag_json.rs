@@ -40,10 +40,7 @@ impl Encode<DagJsonCodec> for Ipld {
 
 impl Decode<DagJsonCodec> for Ipld {
   fn decode(_: DagJsonCodec, r: &mut ByteCursor) -> Result<Self, String> {
-    match codec::decode(r) {
-      Ok(ipld) => Ok(ipld),
-      Err(_) => Err(String::from("Failed to decode JSON")),
-    }
+    codec::decode(r).map_err(|e| e.to_string())
   }
 }
 
@@ -58,12 +55,37 @@ impl References<DagJsonCodec> for Ipld {
   }
 }
 
-pub fn cid(x: &Ipld) -> Cid {
+/// Returns the corresponding dag-json v1 Cid 
+/// to the passed IPLD
+/// # Panics
+/// Panics if dag could not be encoded into a 
+/// dag-json bytecursor.
+pub fn cid(dag: &Ipld) -> Cid {
   Cid::new_v1(
     0x0129,
     Code::Blake2b256
-      .digest(DagJsonCodec.encode(x).unwrap().into_inner().as_ref()),
+      .digest(DagJsonCodec.encode(dag).unwrap().into_inner().as_ref()),
   )
+}
+
+/// This function takes a String representation of a dag JSON
+/// data structure and returns the corresponding IPLD structure.
+/// # Errors
+/// Will return `Err` if `s` is not valid dag JSON, with a description
+/// of the error.
+pub fn from_dag_json_string(s: String) -> Result<Ipld, String> {
+  let mut r = ByteCursor::new(s.into_bytes());
+  codec::decode(&mut r).map_err(|e| e.to_string())
+}
+
+/// This function takes an IPLD structure and returns the corresponding
+/// JSON serialized into a String.
+/// # Errors
+/// Will return `Err` if there was an error converting the IPLD to JSON.
+pub fn to_dag_json_string(ipld: Ipld) -> Result<String, String> {
+  let mut w = ByteCursor::new(sp_std::vec![]);
+  codec::encode(&ipld, &mut w).map_err(|e| e.to_string())?;
+  Ok(String::from(String::from_utf8_lossy(&w.into_inner())))
 }
 
 #[cfg(test)]

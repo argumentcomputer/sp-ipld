@@ -59,7 +59,10 @@ pub trait Codec:
   }
 }
 
+/// TODO
 pub trait Encode<C: Codec> {
+  /// TODO
+  ///
   /// # Errors
   ///
   /// Will return `Err` if there was a problem during encoding
@@ -72,17 +75,24 @@ impl<C: Codec, T: Encode<C>> Encode<C> for &T {
   }
 }
 
+/// TODO
 pub trait Decode<C: Codec>: Sized {
+  /// TODO
+  ///
   /// # Errors
   ///
   /// Will return `Err` if there was a problem during decoding
   fn decode(c: C, r: &mut ByteCursor) -> Result<Self, String>;
 }
 
+/// TODO
 pub trait References<C: Codec>: Sized {
+  /// TODO
+  ///
   /// # Errors
   ///
-  /// TODO
+  /// Will return `Err` if there was a problem finding the 
+  /// references of the 
   fn references<E: Extend<Cid>>(
     c: C,
     r: &mut ByteCursor,
@@ -90,7 +100,10 @@ pub trait References<C: Codec>: Sized {
   ) -> Result<(), String>;
 }
 
+/// TODO
 pub trait SkipOne: Codec {
+  /// TODO
+  ///
   /// # Errors
   ///
   /// Will return `Err` if there was a problem during skipping

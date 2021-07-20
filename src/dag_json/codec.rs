@@ -50,7 +50,7 @@ fn serialize<S: ser::Serializer>(
     Ipld::Bytes(bytes) => {
       let value = base64::encode(bytes);
       let mut inner_map = BTreeMap::new();
-      inner_map.insert("bytes".to_string(), value);
+      inner_map.insert(String::from("bytes"), value);
       let mut map = BTreeMap::new();
       map.insert(SPECIAL_KEY, inner_map);
 
@@ -181,7 +181,9 @@ impl<'de> de::Visitor<'de> for JsonVisitor {
       }
     }
 
-    if let Some((first_key, WrapperOwned(Ipld::StringMap(map)))) = values.first() {
+    if let Some((first_key, WrapperOwned(Ipld::StringMap(map)))) =
+      values.first()
+    {
       if let Some((key, Ipld::String(value))) = map.first_key_value() {
         if first_key == SPECIAL_KEY && key == "bytes" && values.len() == 1 {
           let bytes = base64::decode(value).map_err(SerdeError::custom)?;

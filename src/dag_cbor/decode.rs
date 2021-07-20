@@ -41,7 +41,7 @@ use sp_cid::Cid;
 ///
 /// Will return `Err` if the `ByteCursor` has less than 1 available bytes to
 /// read
-pub fn read_u8(r: &mut ByteCursor) -> Result<u8, String> {
+fn read_u8(r: &mut ByteCursor) -> Result<u8, String> {
   let mut buf = [0; 1];
   r.read_exact(&mut buf)?;
   Ok(buf[0])
@@ -51,7 +51,7 @@ pub fn read_u8(r: &mut ByteCursor) -> Result<u8, String> {
 ///
 /// Will return `Err` if the `ByteCursor` has less than 2 available bytes to
 /// read
-pub fn read_u16(r: &mut ByteCursor) -> Result<u16, String> {
+fn read_u16(r: &mut ByteCursor) -> Result<u16, String> {
   let mut buf = [0; 2];
   r.read_exact(&mut buf)?;
   Ok(BigEndian::read_u16(&buf))
@@ -61,7 +61,7 @@ pub fn read_u16(r: &mut ByteCursor) -> Result<u16, String> {
 ///
 /// Will return `Err` if the `ByteCursor` has less than 4 available bytes to
 /// read
-pub fn read_u32(r: &mut ByteCursor) -> Result<u32, String> {
+fn read_u32(r: &mut ByteCursor) -> Result<u32, String> {
   let mut buf = [0; 4];
   r.read_exact(&mut buf)?;
   Ok(BigEndian::read_u32(&buf))
@@ -71,7 +71,7 @@ pub fn read_u32(r: &mut ByteCursor) -> Result<u32, String> {
 ///
 /// Will return `Err` if the `ByteCursor` has less than 8 available bytes to
 /// read
-pub fn read_u64(r: &mut ByteCursor) -> Result<u64, String> {
+fn read_u64(r: &mut ByteCursor) -> Result<u64, String> {
   let mut buf = [0; 8];
   r.read_exact(&mut buf)?;
   Ok(BigEndian::read_u64(&buf))
@@ -81,7 +81,7 @@ pub fn read_u64(r: &mut ByteCursor) -> Result<u64, String> {
 ///
 /// Will return `Err` if the `ByteCursor` has less than 4 available bytes to
 /// read
-pub fn read_f32(r: &mut ByteCursor) -> Result<f32, String> {
+fn read_f32(r: &mut ByteCursor) -> Result<f32, String> {
   let mut buf = [0; 4];
   r.read_exact(&mut buf)?;
   Ok(BigEndian::read_f32(&buf))
@@ -91,7 +91,7 @@ pub fn read_f32(r: &mut ByteCursor) -> Result<f32, String> {
 ///
 /// Will return `Err` if the `ByteCursor` has less than 8 available bytes to
 /// read
-pub fn read_f64(r: &mut ByteCursor) -> Result<f64, String> {
+fn read_f64(r: &mut ByteCursor) -> Result<f64, String> {
   let mut buf = [0; 8];
   r.read_exact(&mut buf)?;
   Ok(BigEndian::read_f64(&buf))
@@ -101,7 +101,7 @@ pub fn read_f64(r: &mut ByteCursor) -> Result<f64, String> {
 ///
 /// Will return `Err` if the `ByteCursor` has less than `len` available bytes
 /// to read
-pub fn read_bytes(r: &mut ByteCursor, len: usize) -> Result<Vec<u8>, String> {
+fn read_bytes(r: &mut ByteCursor, len: usize) -> Result<Vec<u8>, String> {
   let mut buf = vec![0; len];
   r.read_exact(&mut buf)?;
   Ok(buf)
@@ -111,13 +111,13 @@ pub fn read_bytes(r: &mut ByteCursor, len: usize) -> Result<Vec<u8>, String> {
 ///
 /// Will return `Err` if the `ByteCursor` has less than `len` available bytes
 /// to read or the bytes read are not valid UTF-8
-pub fn read_str(r: &mut ByteCursor, len: usize) -> Result<String, String> {
+fn read_str(r: &mut ByteCursor, len: usize) -> Result<String, String> {
   let bytes = read_bytes(r, len)?;
   String::from_utf8(bytes).map_err(|_| "Error converting to UTF-8".to_owned())
 }
 
 /// Will return `Err` if there were any errors decoding `len` objects
-pub fn read_list<T: Decode<DagCborCodec>>(
+fn read_list<T: Decode<DagCborCodec>>(
   r: &mut ByteCursor,
   len: usize,
 ) -> Result<Vec<T>, String> {
@@ -132,7 +132,7 @@ pub fn read_list<T: Decode<DagCborCodec>>(
 ///
 /// Will return `Err` if there were errors reading the major value, seeking
 /// back, or decoding the component objects
-pub fn read_list_il<T: Decode<DagCborCodec>>(
+fn read_list_il<T: Decode<DagCborCodec>>(
   r: &mut ByteCursor,
 ) -> Result<Vec<T>, String> {
   let mut list: Vec<T> = Vec::new();
@@ -152,7 +152,7 @@ pub fn read_list_il<T: Decode<DagCborCodec>>(
 ///
 /// Will return `Err` if there were any errors decoding `len` key-value pairs
 /// of objects
-pub fn read_map<K: Decode<DagCborCodec> + Ord, T: Decode<DagCborCodec>>(
+fn read_map<K: Decode<DagCborCodec> + Ord, T: Decode<DagCborCodec>>(
   r: &mut ByteCursor,
   len: usize,
 ) -> Result<BTreeMap<K, T>, String> {
@@ -169,7 +169,7 @@ pub fn read_map<K: Decode<DagCborCodec> + Ord, T: Decode<DagCborCodec>>(
 ///
 /// Will return `Err` if there was an error reading the major value, seeking
 /// backward, or decoding the component key-value pairs of objects
-pub fn read_map_il<K: Decode<DagCborCodec> + Ord, T: Decode<DagCborCodec>>(
+fn read_map_il<K: Decode<DagCborCodec> + Ord, T: Decode<DagCborCodec>>(
   r: &mut ByteCursor,
 ) -> Result<BTreeMap<K, T>, String> {
   let mut map: BTreeMap<K, T> = BTreeMap::new();
@@ -191,7 +191,7 @@ pub fn read_map_il<K: Decode<DagCborCodec> + Ord, T: Decode<DagCborCodec>>(
 /// Will return `Err` if the `ByteCursor` is not long enough, the cbor tag is
 /// not `0x58`, the len is `0`, `bytes[0]` is not `0`, or if the bytes are not
 /// a valid Cid
-pub fn read_link(r: &mut ByteCursor) -> Result<Cid, String> {
+fn read_link(r: &mut ByteCursor) -> Result<Cid, String> {
   let ty = read_u8(r)?;
   if ty != 0x58 {
     return Err(format!("Unknown cbor tag `{}`", ty));
@@ -214,7 +214,7 @@ pub fn read_link(r: &mut ByteCursor) -> Result<Cid, String> {
 ///
 /// Will return `Err` if the major value is unknown or decoding a usize which
 /// is greater than `u64::MAX`
-pub fn read_len(r: &mut ByteCursor, major: u8) -> Result<usize, String> {
+fn read_len(r: &mut ByteCursor, major: u8) -> Result<usize, String> {
   Ok(match major {
     0x00..=0x17 => major as usize,
     0x18 => read_u8(r)? as usize,
