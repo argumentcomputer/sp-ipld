@@ -47,9 +47,12 @@ pub trait Codec:
     T::decode(*self, &mut bytes)
   }
 
+  /// Extends `set` with any cids the type encoded in the bytecursor
+  /// refers to.
+  ///
   /// # Errors
   ///
-  /// TODO
+  /// Returns `Err` if there were any errors decoding the bytecursor.
   fn references<T: References<Self>, E: Extend<Cid>>(
     &self,
     mut bytes: ByteCursor,
@@ -59,9 +62,11 @@ pub trait Codec:
   }
 }
 
-/// TODO
+/// A trait to represent the ability to encode with
+/// the codec `C` for the type.
 pub trait Encode<C: Codec> {
-  /// TODO
+  /// Encodes `Self` using codec `C` into the mutable bytecursor
+  /// `w`. Returns `Ok` if the encoding process succeeded.
   ///
   /// # Errors
   ///
@@ -75,9 +80,12 @@ impl<C: Codec, T: Encode<C>> Encode<C> for &T {
   }
 }
 
-/// TODO
+/// A trait representing the ability to decode with 
+/// the codec `C` for the type.
 pub trait Decode<C: Codec>: Sized {
-  /// TODO
+  /// Decodes the bytes in `r` using the codec `C` into
+  /// `Self`. Returns `ok` if the bytes represented a valid 
+  /// value of the type.
   ///
   /// # Errors
   ///
@@ -85,14 +93,16 @@ pub trait Decode<C: Codec>: Sized {
   fn decode(c: C, r: &mut ByteCursor) -> Result<Self, String>;
 }
 
-/// TODO
+/// A trait representing the ability to count cid references in the 
+/// encoding of the type with the codec `C`
 pub trait References<C: Codec>: Sized {
-  /// TODO
+  /// Extends `set` with any Cid references found in the encoding 
+  /// of the type in `r` with the codec `C`
   ///
   /// # Errors
   ///
-  /// Will return `Err` if there was a problem finding the 
-  /// references of the 
+  /// Will return `Err` if `r` did not contain a valid encoding of the
+  /// type with codec `C`.
   fn references<E: Extend<Cid>>(
     c: C,
     r: &mut ByteCursor,
@@ -100,9 +110,9 @@ pub trait References<C: Codec>: Sized {
   ) -> Result<(), String>;
 }
 
-/// TODO
+/// A trait for codecs representing the ability to skip values.
 pub trait SkipOne: Codec {
-  /// TODO
+  /// Skips a single value of the encoded type using the given codec in `r`.
   ///
   /// # Errors
   ///

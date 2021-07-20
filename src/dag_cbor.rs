@@ -19,7 +19,7 @@ use sp_std::convert::TryFrom;
 pub mod decode;
 pub mod encode;
 
-/// TODO
+/// A struct representing the dag-cbor IPLD codec.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct DagCborCodec;
 
