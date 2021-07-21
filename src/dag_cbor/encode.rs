@@ -28,7 +28,7 @@ use sp_std::{
 ///
 /// Will return `Err` if the cursor position exceeds maximum possible vector
 /// length or we failed to write whole buffer
-pub fn write_null(w: &mut ByteCursor) -> Result<(), String> {
+fn write_null(w: &mut ByteCursor) -> Result<(), String> {
   w.write_all(&[0xf6])?;
   Ok(())
 }
@@ -37,11 +37,7 @@ pub fn write_null(w: &mut ByteCursor) -> Result<(), String> {
 ///
 /// Will return `Err` if the cursor position exceeds maximum possible vector
 /// length or we failed to write whole buffer
-pub fn write_u8(
-  w: &mut ByteCursor,
-  major: u8,
-  value: u8,
-) -> Result<(), String> {
+fn write_u8(w: &mut ByteCursor, major: u8, value: u8) -> Result<(), String> {
   if value <= 0x17 {
     let buf = [major << 5 | value];
     w.write_all(&buf)?;
@@ -57,11 +53,7 @@ pub fn write_u8(
 ///
 /// Will return `Err` if the cursor position exceeds maximum possible vector
 /// length or we failed to write whole buffer
-pub fn write_u16(
-  w: &mut ByteCursor,
-  major: u8,
-  value: u16,
-) -> Result<(), String> {
+fn write_u16(w: &mut ByteCursor, major: u8, value: u16) -> Result<(), String> {
   if let Ok(small) = u8::try_from(value) {
     write_u8(w, major, small)?;
   }
@@ -77,11 +69,7 @@ pub fn write_u16(
 ///
 /// Will return `Err` if the cursor position exceeds maximum possible vector
 /// length or we failed to write whole buffer
-pub fn write_u32(
-  w: &mut ByteCursor,
-  major: u8,
-  value: u32,
-) -> Result<(), String> {
+fn write_u32(w: &mut ByteCursor, major: u8, value: u32) -> Result<(), String> {
   if let Ok(small) = u16::try_from(value) {
     write_u16(w, major, small)?;
   }
@@ -97,11 +85,7 @@ pub fn write_u32(
 ///
 /// Will return `Err` if the cursor position exceeds maximum possible vector
 /// length or we failed to write whole buffer
-pub fn write_u64(
-  w: &mut ByteCursor,
-  major: u8,
-  value: u64,
-) -> Result<(), String> {
+fn write_u64(w: &mut ByteCursor, major: u8, value: u64) -> Result<(), String> {
   if let Ok(small) = u32::try_from(value) {
     write_u32(w, major, small)?;
   }
@@ -117,7 +101,7 @@ pub fn write_u64(
 ///
 /// Will return `Err` if the cursor position exceeds maximum possible vector
 /// length or we failed to write whole buffer
-pub fn write_tag(w: &mut ByteCursor, tag: u64) -> Result<(), String> {
+fn write_tag(w: &mut ByteCursor, tag: u64) -> Result<(), String> {
   write_u64(w, 6, tag)
 }
 impl Encode<DagCborCodec> for bool {

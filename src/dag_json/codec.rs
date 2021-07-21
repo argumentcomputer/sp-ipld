@@ -1,4 +1,9 @@
-use super::ipld::Ipld;
+use crate::Ipld;
+use alloc::{
+  borrow::ToOwned,
+  string::String,
+};
+use bytecursor::ByteCursor;
 use core::convert::TryFrom;
 use serde::{
   de,
@@ -13,20 +18,22 @@ use serde_json::{
 };
 use sp_cid::Cid;
 use sp_std::{
-  collections::BTreeMap,
+  collections::btree_map::BTreeMap,
   fmt,
+  vec::Vec,
 };
 
-const LINK_KEY: &str = "/";
+const SPECIAL_KEY: &str = "/";
 
 pub fn encode(ipld: &Ipld, writer: &mut ByteCursor) -> Result<(), Error> {
-  let mut ser = Serializer::new(writer);
-  serialize(&ipld, &mut ser)?;
+  let mut buf = writer.get_mut();
+  let mut ser = Serializer::new(&mut buf);
+  serialize(ipld, &mut ser)?;
   Ok(())
 }
 
 pub fn decode(r: &mut ByteCursor) -> Result<Ipld, Error> {
-  let mut de = serde_json::Deserializer::from_reader(r);
+  let mut de = serde_json::Deserializer::from_slice(r.get_ref());
   deserialize(&mut de)
 }
 
@@ -39,8 +46,16 @@ fn serialize<S: ser::Serializer>(
     Ipld::Bool(bool) => ser.serialize_bool(*bool),
     Ipld::Integer(i128) => ser.serialize_i128(*i128),
     Ipld::Float(f64) => ser.serialize_f64(*f64),
-    Ipld::String(string) => ser.serialize_str(&string),
-    Ipld::Bytes(bytes) => ser.serialize_bytes(&bytes),
+    Ipld::String(string) => ser.serialize_str(string),
+    Ipld::Bytes(bytes) => {
+      let value = base64::encode(bytes);
+      let mut inner_map = BTreeMap::new();
+      inner_map.insert(String::from("bytes"), value);
+      let mut map = BTreeMap::new();
+      map.insert(SPECIAL_KEY, inner_map);
+
+      ser.collect_map(map)
+    }
     Ipld::List(list) => {
       let wrapped = list.iter().map(|ipld| Wrapper(ipld));
       ser.collect_seq(wrapped)
@@ -49,21 +64,10 @@ fn serialize<S: ser::Serializer>(
       let wrapped = map.iter().map(|(key, ipld)| (key, Wrapper(ipld)));
       ser.collect_map(wrapped)
     }
-    #[cfg(feature = "unleashed")]
-    Ipld::IntegerMap(map) => {
-      let wrapped = map.iter().map(|(key, ipld)| (key, Wrapper(ipld)));
-      ser.collect_map(wrapped)
-    }
-    #[cfg(feature = "unleashed")]
-    Ipld::Tag(tag, ipld) => {
-      let mut map = BTreeMap::new();
-      map.insert("/", (tag, Wrapper(ipld)));
-      ser.collect_map(map)
-    }
     Ipld::Link(link) => {
-      let value = base64::encode(&link.to_bytes());
+      let value = base64::encode(link.to_bytes());
       let mut map = BTreeMap::new();
-      map.insert("/", value);
+      map.insert(SPECIAL_KEY, value);
 
       ser.collect_map(map)
     }
@@ -83,7 +87,7 @@ struct Wrapper<'a>(&'a Ipld);
 impl<'a> Serialize for Wrapper<'a> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where S: ser::Serializer {
-    serialize(&self.0, serializer)
+    serialize(self.0, serializer)
   }
 }
 
@@ -170,10 +174,21 @@ impl<'de> de::Visitor<'de> for JsonVisitor {
     // JSON Object represents IPLD Link if it is `{ "/": "...." }` therefor
     // we valiadet if that is the case here.
     if let Some((key, WrapperOwned(Ipld::String(value)))) = values.first() {
-      if key == LINK_KEY && values.len() == 1 {
-        let link = base64::decode(value).map_err(SerdeError::custom)?;
+      if key == SPECIAL_KEY && values.len() == 1 {
+        let link = base64::decode(&value).map_err(SerdeError::custom)?;
         let cid = Cid::try_from(link).map_err(SerdeError::custom)?;
         return Ok(Ipld::Link(cid));
+      }
+    }
+
+    if let Some((first_key, WrapperOwned(Ipld::StringMap(map)))) =
+      values.first()
+    {
+      if let Some((key, Ipld::String(value))) = map.first_key_value() {
+        if first_key == SPECIAL_KEY && key == "bytes" && values.len() == 1 {
+          let bytes = base64::decode(value).map_err(SerdeError::custom)?;
+          return Ok(Ipld::Bytes(bytes));
+        }
       }
     }
 

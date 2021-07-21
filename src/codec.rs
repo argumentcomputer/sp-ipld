@@ -47,9 +47,12 @@ pub trait Codec:
     T::decode(*self, &mut bytes)
   }
 
+  /// Extends `set` with any cids the type encoded in the bytecursor
+  /// refers to.
+  ///
   /// # Errors
   ///
-  /// TODO
+  /// Returns `Err` if there were any errors decoding the bytecursor.
   fn references<T: References<Self>, E: Extend<Cid>>(
     &self,
     mut bytes: ByteCursor,
@@ -59,7 +62,12 @@ pub trait Codec:
   }
 }
 
+/// A trait to represent the ability to encode with
+/// the codec `C` for the type.
 pub trait Encode<C: Codec> {
+  /// Encodes `Self` using codec `C` into the mutable bytecursor
+  /// `w`. Returns `Ok` if the encoding process succeeded.
+  ///
   /// # Errors
   ///
   /// Will return `Err` if there was a problem during encoding
@@ -72,17 +80,29 @@ impl<C: Codec, T: Encode<C>> Encode<C> for &T {
   }
 }
 
+/// A trait representing the ability to decode with 
+/// the codec `C` for the type.
 pub trait Decode<C: Codec>: Sized {
+  /// Decodes the bytes in `r` using the codec `C` into
+  /// `Self`. Returns `ok` if the bytes represented a valid 
+  /// value of the type.
+  ///
   /// # Errors
   ///
   /// Will return `Err` if there was a problem during decoding
   fn decode(c: C, r: &mut ByteCursor) -> Result<Self, String>;
 }
 
+/// A trait representing the ability to count cid references in the 
+/// encoding of the type with the codec `C`
 pub trait References<C: Codec>: Sized {
+  /// Extends `set` with any Cid references found in the encoding 
+  /// of the type in `r` with the codec `C`
+  ///
   /// # Errors
   ///
-  /// TODO
+  /// Will return `Err` if `r` did not contain a valid encoding of the
+  /// type with codec `C`.
   fn references<E: Extend<Cid>>(
     c: C,
     r: &mut ByteCursor,
@@ -90,7 +110,10 @@ pub trait References<C: Codec>: Sized {
   ) -> Result<(), String>;
 }
 
+/// A trait for codecs representing the ability to skip values.
 pub trait SkipOne: Codec {
+  /// Skips a single value of the encoded type using the given codec in `r`.
+  ///
   /// # Errors
   ///
   /// Will return `Err` if there was a problem during skipping
