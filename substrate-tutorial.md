@@ -219,4 +219,6 @@
    In the browser, scroll to the bottom of the page and input an integer, then hit "Store IPLD Data". The encoded CID should show up on screen as well as in the node's stdout.\
    To retrieve this data, enter the "Currently Stored CID" (omitting the "0X") and hit "Retrieve IPLD Data". The integer originally entered should then appear in the event log and in stdout.
    
-## For a working example of this tutorial, see the Yatima (substrate-node-template)[https://github.com/yatima-inc/substrate-node-template] and (substrate-front-end-template)[https://github.com/yatima-inc/substrate-front-end-template] repos
+## Working example of this tutorial
+See the Yatima (substrate-node-template)[https://github.com/yatima-inc/substrate-node-template] and
+(substrate-front-end-template)[https://github.com/yatima-inc/substrate-front-end-template] repos on the `ipld-tutorial` branch
