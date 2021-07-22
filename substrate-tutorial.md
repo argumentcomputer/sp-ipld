@@ -220,5 +220,5 @@
    To retrieve this data, enter the "Currently Stored CID" (omitting the "0X") and hit "Retrieve IPLD Data". The integer originally entered should then appear in the event log and in stdout.
    
 ## Working example of this tutorial
-See the Yatima (substrate-node-template)[https://github.com/yatima-inc/substrate-node-template] and
-(substrate-front-end-template)[https://github.com/yatima-inc/substrate-front-end-template] repos on the `ipld-tutorial` branch
+See the Yatima [substrate-node-template](https://github.com/yatima-inc/substrate-node-template) and
+[substrate-front-end-template](https://github.com/yatima-inc/substrate-front-end-template) repos on the `ipld-tutorial` branch
