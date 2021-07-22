@@ -1,11 +1,17 @@
-use alloc::string::String;
+use alloc::{
+  borrow::ToOwned,
+  string::String,
+  vec,
+};
 use sp_cid::Cid;
 use sp_std::{
   self,
+  boxed::Box,
   collections::btree_map::BTreeMap,
   vec::Vec,
 };
 
+/// TODO
 #[derive(Clone, PartialEq)]
 pub enum Ipld {
   /// Represents the absence of a value or the value undefined.
@@ -45,10 +51,75 @@ impl sp_std::fmt::Debug for Ipld {
   }
 }
 
+impl Ipld {
+  /// TODO
+  ///
+  /// Returns an iterator.
+  pub fn iter(&self) -> IpldIter<'_> {
+    IpldIter { stack: vec![Box::new(vec![self].into_iter())] }
+  }
+
+  /// TODO
+  ///
+  /// Returns the references to other blocks.
+  pub fn references<E: Extend<Cid>>(&self, set: &mut E) {
+    for ipld in self.iter() {
+      if let Ipld::Link(cid) = ipld {
+        set.extend(sp_std::iter::once(cid.to_owned()));
+      }
+    }
+  }
+}
+
+impl<'a> Iterator for IpldIter<'a> {
+  type Item = &'a Ipld;
+
+  fn next(&mut self) -> Option<Self::Item> {
+    loop {
+      if let Some(iter) = self.stack.last_mut() {
+        if let Some(ipld) = iter.next() {
+          match ipld {
+            Ipld::List(list) => {
+              self.stack.push(Box::new(list.iter()));
+            }
+            Ipld::StringMap(map) => {
+              self.stack.push(Box::new(map.values()));
+            }
+            #[cfg(feature = "unleashed")]
+            Ipld::IntegerMap(map) => {
+              self.stack.push(Box::new(map.values()));
+            }
+            #[cfg(feature = "unleashed")]
+            Ipld::Tag(_, ipld) => {
+              self.stack.push(Box::new(ipld.iter()));
+            }
+            _ => {}
+          }
+          return Some(ipld);
+        }
+        else {
+          self.stack.pop();
+        }
+      }
+      else {
+        return None;
+      }
+    }
+  }
+}
+
+/// TODO
+///
+/// Ipld iterator.
+pub struct IpldIter<'a> {
+  stack: Vec<Box<dyn Iterator<Item = &'a Ipld> + 'a>>,
+}
+
 #[cfg(test)]
 pub mod tests {
   use super::*;
   use crate::rand::Rng;
+  use alloc::vec;
   use quickcheck::{
     Arbitrary,
     Gen,
@@ -57,8 +128,9 @@ pub mod tests {
     Code,
     MultihashDigest,
   };
+  use sp_std::boxed::Box;
 
-  pub fn arbitrary_cid(g: &mut Gen) -> Cid {
+  pub(crate) fn arbitrary_cid(g: &mut Gen) -> Cid {
     let mut bytes: [u8; 32] = [0; 32];
     for x in bytes.iter_mut() {
       *x = Arbitrary::arbitrary(g);
@@ -66,7 +138,7 @@ pub mod tests {
     Cid::new_v1(0x55, Code::Blake2b256.digest(&bytes))
   }
 
-  pub fn frequency<T, F: Fn(&mut Gen) -> T>(
+  fn frequency<T, F: Fn(&mut Gen) -> T>(
     g: &mut Gen,
     gens: Vec<(i64, F)>,
   ) -> T {
@@ -101,17 +173,7 @@ pub mod tests {
   }
 
   pub fn arbitrary_i128() -> Box<dyn Fn(&mut Gen) -> i128> {
-    Box::new(move |g: &mut Gen| {
-      let sgn: bool = Arbitrary::arbitrary(g);
-      if sgn {
-        let x: u64 = Arbitrary::arbitrary(g);
-        x as i128
-      }
-      else {
-        let x: i64 = Arbitrary::arbitrary(g);
-        if x.is_positive() { -x as i128 } else { x as i128 }
-      }
-    })
+    Box::new(move |g: &mut Gen| i64::arbitrary(g) as i128)
   }
 
   pub fn arbitrary_integer() -> Box<dyn Fn(&mut Gen) -> Ipld> {
@@ -124,10 +186,6 @@ pub mod tests {
 
   fn arbitrary_bytes() -> Box<dyn Fn(&mut Gen) -> Ipld> {
     Box::new(move |g: &mut Gen| Ipld::Bytes(Arbitrary::arbitrary(g)))
-  }
-
-  fn arbitrary_float() -> Box<dyn Fn(&mut Gen) -> Ipld> {
-    Box::new(move |g: &mut Gen| Ipld::Float(Arbitrary::arbitrary(g)))
   }
 
   pub fn arbitrary_list() -> Box<dyn Fn(&mut Gen) -> Ipld> {

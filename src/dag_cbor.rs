@@ -19,6 +19,7 @@ use sp_std::convert::TryFrom;
 pub mod decode;
 pub mod encode;
 
+/// A struct representing the dag-cbor IPLD codec.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct DagCborCodec;
 
@@ -34,10 +35,16 @@ impl TryFrom<u64> for DagCborCodec {
   fn try_from(_: u64) -> core::result::Result<Self, Self::Error> { Ok(Self) }
 }
 
+/// A trait representing the capability to both decode and encode
+/// the type using the dag-cbor codec
 pub trait DagCbor: Encode<DagCborCodec> + Decode<DagCborCodec> {}
 
 impl<T: Encode<DagCborCodec> + Decode<DagCborCodec>> DagCbor for T {}
 
+/// Returns the corresponding dag-cbor v1 Cid 
+/// to the passed IPLD
+/// # Panics
+/// Panics if x could not be encoded into a dag-cbor bytecursor
 pub fn cid(x: &Ipld) -> Cid {
   Cid::new_v1(
     0x71,
@@ -61,15 +68,15 @@ pub mod tests {
 
   fn encode_decode_id<T: DagCbor + PartialEq<T> + Clone>(value: T) -> bool {
     let mut bc = ByteCursor::new(Vec::new());
-    match Encode::encode(&value.clone(), DagCborCodec, &mut bc) {
+    match Encode::encode(&value, DagCborCodec, &mut bc) {
       Ok(()) => {
         bc.set_position(0);
         match Decode::decode(DagCborCodec, &mut bc) {
           Ok(new_value) => return value == new_value,
-          Err(e) => eprintln!("Error occurred during decoding: {}", e),
+          Err(e) => println!("Error occurred during decoding: {}", e),
         }
       }
-      Err(e) => eprintln!("Error occurred during encoding: {}", e),
+      Err(e) => println!("Error occurred during encoding: {}", e),
     }
     false
   }
@@ -81,9 +88,8 @@ pub mod tests {
   pub fn edid_bool(x: bool) -> bool { encode_decode_id(Ipld::Bool(x)) }
 
   #[quickcheck]
-  pub fn edid_integer(x: u64, sign: bool) -> bool {
-    let number = if sign { x as i128 } else { -(x as i128 - 1) };
-    encode_decode_id(Ipld::Integer(number))
+  pub fn edid_integer(x: i64) -> bool {
+    encode_decode_id(Ipld::Integer(x as i128))
   }
 
   #[quickcheck]

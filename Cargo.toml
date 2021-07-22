@@ -7,8 +7,9 @@ edition = "2018"
 
 [features]
 default = ["dag-cbor", "dag-json"]
-dag-cbor = ["serde"]
-dag-json = ["sp-multihash", "multibase", "byteorder"]
+dag-json = ["serde", "base64", "sp-multihash"]
+dag-cbor = ["multibase", "byteorder", "sp-multihash"]
+#TODO: Add std features
 std = []
 
 [dependencies]
@@ -18,9 +19,11 @@ unsigned-varint = { version = "0.7.0", default-features = false }
 multibase = { version = "0.9.1", default-features = false, optional = true }
 parity-scale-codec = { version = "2.1.1", default-features = false, features = ["derive"], optional = true }
 serde = { version = "1.0.116", optional = true, default-features = false, features = ["alloc"] }
+serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 bytecursor = "0.1"
 sp-cid = "0.1"
 sp-multihash = {version = "0.1", optional = true }
+base64 = { version = "0.13", optional = true }
 
 [dev-dependencies]
 quickcheck = "1.0.3"
@@ -28,4 +31,3 @@ rand = "0.8.3"
 quickcheck_macros = "1.0.0"
 tokio = { version = "1.5", features = ["rt", "macros", "rt-multi-thread"] }
 reqwest = { version = "0.11.3", features = [ "multipart", "json" ] }
-serde_json = { version = "1.0" }
