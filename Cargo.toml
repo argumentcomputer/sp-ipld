@@ -1,15 +1,20 @@
 [package]
-name = "sp-ipld"
+ame = "sp-ipld"
 version = "0.1.0"
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Samuel Burnham <sam@yatima.io>", "John Burnham <john@yatima.io>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/yatima-inc/sp-ipld"
+documentation = "https://docs.rs/sp-ipld"
+description = "IPLD library for `no_std` use within Substrate"
+keywords = ["ipld", "no_std"]
+categories = ["no-std"]
 
 [features]
 default = ["dag-cbor", "dag-json"]
 dag-json = ["serde", "base64", "sp-multihash"]
 dag-cbor = ["multibase", "byteorder", "sp-multihash"]
-#TODO: Add std features
 std = []
 
 [dependencies]
