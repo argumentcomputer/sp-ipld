@@ -2,7 +2,7 @@
 
 1. Clone the [Substrate Node Template](https://github.com/substrate-developer-hub/substrate-node-template)
 2. Navigate to `pallets/template/Cargo.toml` and import `sp-ipld` and `sp-std` as follows:
-   ```
+   ```rust
    [dependencies.sp-std]
    default-features = false
    version = '3.0.0'
@@ -13,25 +13,26 @@
    git = 'https://github.com/yatima-inc/sp-ipld'
    version = '0.1'
    ```
-3. Navigate to `pallets/template/src/lib.rs` and make the following changes:\
-   Below `use frame_system::pallet_prelude::*;` add 
+3. Navigate to `pallets/template/src/lib.rs` and make the following changes: 
+   ```rust
+   use frame_system::pallet_prelude::*;
+   use sp_std::vec::Vec; // ADD
+   use sp_ipld::{dag_cbor, Ipld}; // ADD
    ```
-   use sp_std::vec::Vec;
-   use sp_ipld::{dag_cbor, Ipld};
+   ```rust
+   pub type Something<T> = StorageValue<_, u32>; // REPLACE
+   pub(super) type Cid<T> = StorageValue<_, Vec<u8>>; 
    ```
-   Change the following:\
-   `pub type Something<T> = StorageValue<_, u32>;` to\
-   `pub(super) type Cid<T> = StorageValue<_, Vec<u8>>;`\
-   `SomethingStored(u32, T::AccountId),` to
-   ```
+   ```rust
+   SomethingStored(u32, T::AccountId), //REPLACE
    CidStored(T::AccountId, Vec<u8>),
    CidRetrieved(T::AccountId, Vec<u8>),
    ```
-   Replace the `#[pallet:;call]` section with:
-   ```
-	#[pallet::call]
-	impl<T:Config> Pallet<T> {
-		/// An example dispatchable that takes a singles value as a parameter, writes the value to
+   Replace the `#[pallet::call]` section with:
+   ```rust
+   #[pallet::call]
+   impl<T:Config> Pallet<T> {
+    	/// An example dispatchable that takes a singles value as a parameter, writes the value to
 		/// storage and emits an event. This function must be dispatched by a signed extrinsic.
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
 		pub fn store_ipld(origin: OriginFor<T>, input: u32) -> DispatchResult {
@@ -39,18 +40,18 @@
 			// This function will return an error if the extrinsic is not signed.
 			// https://substrate.dev/docs/en/knowledgebase/runtime/origin
 			let who = ensure_signed(origin)?;
+			
+			//Construct CID from input
+			let cid: Vec<u8> = dag_cbor::cid(&Ipld::Integer(input as i128)).to_bytes();
 
-      //Construct CID from input
-      let cid: Vec<u8> = dag_cbor::cid(&Ipld::Integer(input as i128)).to_bytes();
-
-      runtime_print!("Encoded input: {} into dag-cbor CID: {:?}", input, cid);
-      runtime_print!("Request sent by: {:?}", who);
+			runtime_print!("Encoded input: {} into dag-cbor CID: {:?}", input, cid);
+			runtime_print!("Request sent by: {:?}", who);
 
 			// Insert into storage.
-			<Cid<T>>::put(cid.clone());
+			<Cid<T>>::put((cid.clone(), input));
 
 			// Emit an event.
-			Self::deposit_event(Event::CidStored(who, cid));
+			Self::deposit_event(Event::CidStored(who, (cid, input)));
 
 			// Return a successful DispatchResultWithPostInfo
 			Ok(())
@@ -58,28 +59,22 @@
 
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1))]
 		pub fn retrieve_ipld(origin: OriginFor<T>, cid: Vec<u8>) -> DispatchResult {
-			// Check that the extrinsic was signed and get the signer.
-			// This function will return an error if the extrinsic is not signed.
-			// https://substrate.dev/docs/en/knowledgebase/runtime/origin
-			let who = ensure_signed(origin)?;
+			 // Check that the extrinsic was signed and get the signer.
+			 // This function will return an error if the extrinsic is not signed.
+			 // https://substrate.dev/docs/en/knowledgebase/runtime/origin
+			 let who = ensure_signed(origin)?;
 
-        // Retrieve from storage
-        //let data = <Cid<T>>::get(cid);
-      //Retrieve data from CID
-        //let data: u32 = match DagCborCodec.decode(ByteCursor::new(cid.clone())).expect("invalid ipld cbor.") {
-        //    Ipld::Integer(uint) => uint as u32,
-        //    _ => 0 as u32,
-        //};
-      let data = 5;
+			 // Retrieve from storage
+			 let data = <Cid<T>>::get().unwrap().1;
 
-      runtime_print!("Decoded data: {} from dag-cbor CID: {:?}", data, cid);
-      runtime_print!("Request sent by: {:?}", who);
+			 runtime_print!("Decoded data: {} from dag-cbor CID: {:?}", data, cid);
+			 runtime_print!("Request sent by: {:?}", who);
 
-			// Emit an event.
-			Self::deposit_event(Event::CidRetrieved(who, cid));
+			 // Emit an event.
+			 Self::deposit_event(Event::CidRetrieved(who, (cid, data)));
 
-			// Return a successful DispatchResultWithPostInfo
-			Ok(())
+			 // Return a successful DispatchResultWithPostInfo
+			 Ok(())
 		}
 
 		/// An example dispatchable that may throw a custom error.
@@ -92,11 +87,14 @@
 				// Return an error if the value has not been set.
 				None => Err(Error::<T>::NoneValue)?,
 				Some(_) => {
-					Ok(())
+				Ok(())
 				},
 			}
 		}
 	}
+
+
+
    ```
 
 4. Build and run the node
@@ -110,7 +108,7 @@
 5. Clone the [Substrate Front End Template](https://github.com/substrate-developer-hub/substrate-front-end-template.git) in a separate directory.
 
 6. Navigate to `src/TemplateModule.js` and replace it with the following:
-   ```
+   ```javascript
    import React, { useEffect, useState } from 'react';
    import { Form, Input, Grid, Statistic } from 'semantic-ui-react';
    
@@ -214,10 +212,11 @@
    }
    ```
 
-7. Build and install the front end as detailed in the [Readme](https://github.com/substrate-developer-hub/substrate-front-end-template/blob/master/README.md)\
-   Run the node as done in Step 4, then run the front end with `yarn start`\
-   In the browser, scroll to the bottom of the page and input an integer, then hit "Store IPLD Data". The encoded CID should show up on screen as well as in the node's stdout.\
-   To retrieve this data, enter the "Currently Stored CID" (omitting the "0X") and hit "Retrieve IPLD Data". The integer originally entered should then appear in the event log and in stdout.
+7. Build and install the front end as detailed in the [Readme](https://github.com/substrate-developer-hub/substrate-front-end-template/blob/master/README.md)
+8. Run the node as done in Step 4, then run the front end with `yarn start`
+9. Interact with the IPLD commands
+  * In the browser, scroll to the bottom of the page and input an integer, then hit "Store IPLD Data". The encoded CID should show up on screen as well as in the node's stdout.
+  * To retrieve this data, enter the "Currently Stored CID" (omitting the "0X") and hit "Retrieve IPLD Data". The integer originally entered should then appear in the event log and in stdout.
    
 ## Working example of this tutorial
 See the Yatima [substrate-node-template](https://github.com/yatima-inc/substrate-node-template) and
