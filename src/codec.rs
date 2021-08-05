@@ -80,11 +80,11 @@ impl<C: Codec, T: Encode<C>> Encode<C> for &T {
   }
 }
 
-/// A trait representing the ability to decode with 
+/// A trait representing the ability to decode with
 /// the codec `C` for the type.
 pub trait Decode<C: Codec>: Sized {
   /// Decodes the bytes in `r` using the codec `C` into
-  /// `Self`. Returns `ok` if the bytes represented a valid 
+  /// `Self`. Returns `ok` if the bytes represented a valid
   /// value of the type.
   ///
   /// # Errors
@@ -93,10 +93,10 @@ pub trait Decode<C: Codec>: Sized {
   fn decode(c: C, r: &mut ByteCursor) -> Result<Self, String>;
 }
 
-/// A trait representing the ability to count cid references in the 
+/// A trait representing the ability to count cid references in the
 /// encoding of the type with the codec `C`
 pub trait References<C: Codec>: Sized {
-  /// Extends `set` with any Cid references found in the encoding 
+  /// Extends `set` with any Cid references found in the encoding
   /// of the type in `r` with the codec `C`
   ///
   /// # Errors

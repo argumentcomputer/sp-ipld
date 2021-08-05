@@ -138,10 +138,7 @@ pub mod tests {
     Cid::new_v1(0x55, Code::Blake2b256.digest(&bytes))
   }
 
-  fn frequency<T, F: Fn(&mut Gen) -> T>(
-    g: &mut Gen,
-    gens: Vec<(i64, F)>,
-  ) -> T {
+  fn frequency<T, F: Fn(&mut Gen) -> T>(g: &mut Gen, gens: Vec<(i64, F)>) -> T {
     if gens.iter().any(|(v, _)| *v < 0) {
       panic!("Negative weight");
     }

@@ -1,5 +1,9 @@
 #![feature(map_first_last)]
-#![deny(clippy::missing_errors_doc, clippy::missing_panics_doc, clippy::missing_safety_doc)]
+#![deny(
+  clippy::missing_errors_doc,
+  clippy::missing_panics_doc,
+  clippy::missing_safety_doc
+)]
 #![cfg_attr(not(any(feature = "std", test)), no_std)]
 extern crate alloc;
 extern crate sp_std;
