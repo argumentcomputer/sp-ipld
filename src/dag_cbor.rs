@@ -41,7 +41,7 @@ pub trait DagCbor: Encode<DagCborCodec> + Decode<DagCborCodec> {}
 
 impl<T: Encode<DagCborCodec> + Decode<DagCborCodec>> DagCbor for T {}
 
-/// Returns the corresponding dag-cbor v1 Cid 
+/// Returns the corresponding dag-cbor v1 Cid
 /// to the passed IPLD
 /// # Panics
 /// Panics if x could not be encoded into a dag-cbor bytecursor

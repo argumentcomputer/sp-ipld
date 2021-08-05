@@ -11,11 +11,9 @@ use serde::{
   ser,
   Deserialize,
   Serialize,
+  Serializer,
 };
-use serde_json::{
-  ser::Serializer,
-  Error,
-};
+use serde_json::Error;
 use sp_cid::Cid;
 use sp_std::{
   collections::btree_map::BTreeMap,
@@ -26,15 +24,51 @@ use sp_std::{
 const SPECIAL_KEY: &str = "/";
 
 pub fn encode(ipld: &Ipld, writer: &mut ByteCursor) -> Result<(), Error> {
-  let mut buf = writer.get_mut();
-  let mut ser = Serializer::new(&mut buf);
-  serialize(ipld, &mut ser)?;
+  let ipld_json = serde_json::to_string(&ipld).unwrap();
+  writer.write(ipld_json.as_bytes()).unwrap();
   Ok(())
 }
 
 pub fn decode(r: &mut ByteCursor) -> Result<Ipld, Error> {
   let mut de = serde_json::Deserializer::from_slice(r.get_ref());
   deserialize(&mut de)
+}
+
+impl Serialize for Ipld {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where S: Serializer {
+    match &self {
+      Ipld::Null => serializer.serialize_none(),
+      Ipld::Bool(bool) => serializer.serialize_bool(*bool),
+      Ipld::Integer(i128) => serializer.serialize_i128(*i128),
+      Ipld::Float(f64) => serializer.serialize_f64(*f64),
+      Ipld::String(string) => serializer.serialize_str(string),
+      Ipld::Bytes(bytes) => {
+        let value = base64::encode(bytes);
+        let mut inner_map = BTreeMap::new();
+        inner_map.insert(String::from("bytes"), value);
+        let mut map = BTreeMap::new();
+        map.insert(SPECIAL_KEY, inner_map);
+
+        serializer.collect_map(map)
+      }
+      Ipld::List(list) => {
+        let wrapped = list.iter().map(|ipld| Wrapper(ipld));
+        serializer.collect_seq(wrapped)
+      }
+      Ipld::StringMap(map) => {
+        let wrapped = map.iter().map(|(key, ipld)| (key, Wrapper(ipld)));
+        serializer.collect_map(wrapped)
+      }
+      Ipld::Link(link) => {
+        let value = base64::encode(link.to_bytes());
+        let mut map = BTreeMap::new();
+        map.insert(SPECIAL_KEY, value);
+
+        serializer.collect_map(map)
+      }
+    }
+  }
 }
 
 fn serialize<S: ser::Serializer>(

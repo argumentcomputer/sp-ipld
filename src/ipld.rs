@@ -11,7 +11,7 @@ use sp_std::{
   vec::Vec,
 };
 
-/// TODO
+/// IPLD data format
 #[derive(Clone, PartialEq)]
 pub enum Ipld {
   /// Represents the absence of a value or the value undefined.
@@ -52,15 +52,11 @@ impl sp_std::fmt::Debug for Ipld {
 }
 
 impl Ipld {
-  /// TODO
-  ///
   /// Returns an iterator.
   pub fn iter(&self) -> IpldIter<'_> {
     IpldIter { stack: vec![Box::new(vec![self].into_iter())] }
   }
 
-  /// TODO
-  ///
   /// Returns the references to other blocks.
   pub fn references<E: Extend<Cid>>(&self, set: &mut E) {
     for ipld in self.iter() {
@@ -108,8 +104,6 @@ impl<'a> Iterator for IpldIter<'a> {
   }
 }
 
-/// TODO
-///
 /// Ipld iterator.
 pub struct IpldIter<'a> {
   stack: Vec<Box<dyn Iterator<Item = &'a Ipld> + 'a>>,
@@ -138,17 +132,13 @@ pub mod tests {
     Cid::new_v1(0x55, Code::Blake2b256.digest(&bytes))
   }
 
-  fn frequency<T, F: Fn(&mut Gen) -> T>(
-    g: &mut Gen,
-    gens: Vec<(i64, F)>,
-  ) -> T {
+  fn frequency<T, F: Fn(&mut Gen) -> T>(g: &mut Gen, gens: Vec<(i64, F)>) -> T {
     if gens.iter().any(|(v, _)| *v < 0) {
       panic!("Negative weight");
     }
     let sum: i64 = gens.iter().map(|x| x.0).sum();
     let mut rng = rand::thread_rng();
     let mut weight: i64 = rng.gen_range(1..=sum);
-    // let mut weight: i64 = g.rng.gen_range(1, sum);
     for gen in gens {
       if weight - gen.0 <= 0 {
         return gen.1(g);

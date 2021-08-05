@@ -1,5 +1,9 @@
 #![feature(map_first_last)]
-#![deny(clippy::missing_errors_doc, clippy::missing_panics_doc, clippy::missing_safety_doc)]
+#![deny(
+  clippy::missing_errors_doc,
+  clippy::missing_panics_doc,
+  clippy::missing_safety_doc
+)]
 #![cfg_attr(not(any(feature = "std", test)), no_std)]
 extern crate alloc;
 extern crate sp_std;
@@ -105,7 +109,8 @@ pub mod tests {
   }
 
   // "input-enc=json" coerces numbers to floats and does not obey the ipld data
-  // model #[cfg(feature = "dag-json")]
+  // model
+  // #[cfg(feature = "dag-json")]
   // pub async fn dag_get_json(cid: String) -> Result<Ipld, reqwest::Error> {
   // let host = "http://127.0.0.1:5001";
   // let url =
@@ -150,7 +155,8 @@ pub mod tests {
   }
 
   // "input-enc=json" coerces numbers to floats and does not obey the ipld data
-  // model #[cfg(feature = "dag-json")]
+  // model
+  // #[cfg(feature = "dag-json")]
   // async fn async_ipld_ipfs_json(ipld: Ipld) -> bool {
   // match dag_put_json(ipld.clone()).await {
   // Ok(cid) => match dag_get_json(cid.clone()).await {
@@ -189,7 +195,8 @@ pub mod tests {
   }
 
   // "input-enc=json" coerces numbers to floats and does not obey the ipld data
-  // model #[cfg(feature = "dag-json")]
+  // model
+  // #[cfg(feature = "dag-json")]
   // fn ipld_ipfs_json(ipld: Ipld) -> bool {
   // match Runtime::new() {
   // Ok(runtime) => runtime.block_on(async_ipld_ipfs_json(ipld)),
@@ -206,7 +213,8 @@ pub mod tests {
   fn null_ipfs_cbor() -> bool { ipld_ipfs_cbor(Ipld::Null) }
 
   // "input-enc=json" coerces numbers to floats and does not obey the ipld data
-  // model #[cfg(feature = "dag-json")]
+  // model
+  // #[cfg(feature = "dag-json")]
   // #[ignore]
   // #[quickcheck]
   // fn null_ipfs_json() -> bool { ipld_ipfs_json(Ipld::Null) }
@@ -217,7 +225,8 @@ pub mod tests {
   fn bool_ipfs_cbor(b: bool) -> bool { ipld_ipfs_cbor(Ipld::Bool(b)) }
 
   // "input-enc=json" coerces numbers to floats and does not obey the ipld data
-  // model #[cfg(feature = "dag-json")]
+  // model
+  // #[cfg(feature = "dag-json")]
   // #[ignore]
   // #[quickcheck]
   // fn bool_ipfs_json(b: bool) -> bool { ipld_ipfs_json(Ipld::Bool(b)) }
@@ -228,7 +237,8 @@ pub mod tests {
   fn string_ipfs_cbor(x: String) -> bool { ipld_ipfs_cbor(Ipld::String(x)) }
 
   // "input-enc=json" coerces numbers to floats and does not obey the ipld data
-  // model #[cfg(feature = "dag-json")]
+  // model
+  // #[cfg(feature = "dag-json")]
   // #[ignore]
   // #[quickcheck]
   // fn string_ipfs_json(x: String) -> bool { ipld_ipfs_json(Ipld::String(x)) }
@@ -244,7 +254,8 @@ pub mod tests {
   }
 
   // "input-enc=json" coerces numbers to floats and does not obey the ipld data
-  // model, so this test fails #[cfg(feature = "dag-json")]
+  // model, so this test fails
+  // #[cfg(feature = "dag-json")]
   // #[ignore]
   // #[test]
   // fn integers_ipfs_json() {
@@ -262,7 +273,8 @@ pub mod tests {
   }
 
   // "input-enc=json" coerces numbers to floats and does not obey the ipld data
-  // model, so this test fails #[cfg(feature = "dag-json")]
+  // model, so this test fails
+  // #[cfg(feature = "dag-json")]
   // #[ignore]
   // #[quickcheck]
   // fn integer_ipfs_json(x: i64) -> bool {
@@ -274,7 +286,8 @@ pub mod tests {
   fn ipfs_cbor(x: Ipld) -> bool { ipld_ipfs_cbor(x) }
 
   // "input-enc=json" coerces numbers to floats and does not obey the ipld data
-  // model, so this test fails #[cfg(feature = "dag-json")]
+  // model, so this test fails
+  // #[cfg(feature = "dag-json")]
   // #[ignore]
   // #[quickcheck]
   // fn ipfs_json(x: Ipld) -> bool { ipld_ipfs_json(x) }

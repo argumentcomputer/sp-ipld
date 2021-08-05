@@ -55,10 +55,10 @@ impl References<DagJsonCodec> for Ipld {
   }
 }
 
-/// Returns the corresponding dag-json v1 Cid 
+/// Returns the corresponding dag-json v1 Cid
 /// to the passed IPLD
 /// # Panics
-/// Panics if dag could not be encoded into a 
+/// Panics if dag could not be encoded into a
 /// dag-json bytecursor.
 pub fn cid(dag: &Ipld) -> Cid {
   Cid::new_v1(
