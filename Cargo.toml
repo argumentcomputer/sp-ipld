@@ -1,6 +1,6 @@
 [package]
 name = "sp-ipld"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2018"
 authors = ["Samuel Burnham <sam@yatima.io>", "John Burnham <john@yatima.io>"]
 license = "MIT"
@@ -26,8 +26,8 @@ parity-scale-codec = { version = "2.1.1", default-features = false, features = [
 serde = { version = "1.0.116", optional = true, default-features = false, features = ["alloc"] }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 bytecursor = "0.1"
-sp-cid = "0.1"
-sp-multihash = {version = "0.1", optional = true }
+sp-cid = "0.2"
+sp-multihash = {version = "0.2", optional = true }
 base64 = { version = "0.13", optional = true }
 
 [dev-dependencies]
