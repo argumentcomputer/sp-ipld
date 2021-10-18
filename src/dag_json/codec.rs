@@ -15,11 +15,11 @@ use serde::{
 };
 use serde_json::Error;
 use sp_cid::Cid;
-use sp_std::{
+use alloc::{
   collections::btree_map::BTreeMap,
-  fmt,
   vec::Vec,
 };
+use core::fmt;
 
 const SPECIAL_KEY: &str = "/";
 

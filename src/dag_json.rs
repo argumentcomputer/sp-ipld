@@ -83,7 +83,7 @@ pub fn from_dag_json_string(s: String) -> Result<Ipld, String> {
 /// # Errors
 /// Will return `Err` if there was an error converting the IPLD to JSON.
 pub fn to_dag_json_string(ipld: Ipld) -> Result<String, String> {
-  let mut w = ByteCursor::new(sp_std::vec![]);
+  let mut w = ByteCursor::new(vec![]);
   codec::encode(&ipld, &mut w).map_err(|e| e.to_string())?;
   Ok(String::from(String::from_utf8_lossy(&w.into_inner())))
 }
@@ -99,7 +99,7 @@ pub mod tests {
     Gen,
   };
 
-  use sp_std::collections::btree_map::BTreeMap;
+  use alloc::collections::btree_map::BTreeMap;
 
   fn encode_decode_id<
     T: Encode<DagJsonCodec> + Decode<DagJsonCodec> + PartialEq<T> + Clone,

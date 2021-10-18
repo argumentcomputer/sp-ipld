@@ -14,7 +14,7 @@ use sp_multihash::{
   MultihashDigest,
 };
 
-use sp_std::convert::TryFrom;
+use core::convert::TryFrom;
 
 pub mod decode;
 pub mod encode;
@@ -64,7 +64,7 @@ pub mod tests {
     Gen,
   };
 
-  use sp_std::collections::btree_map::BTreeMap;
+  use alloc::collections::btree_map::BTreeMap;
 
   fn encode_decode_id<T: DagCbor + PartialEq<T> + Clone>(value: T) -> bool {
     let mut bc = ByteCursor::new(Vec::new());

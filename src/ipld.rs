@@ -1,11 +1,9 @@
 use alloc::{
-  borrow::ToOwned,
   string::String,
-  vec,
 };
 use sp_cid::Cid;
-use sp_std::{
-  self,
+use alloc::{
+  borrow::ToOwned,
   boxed::Box,
   collections::btree_map::BTreeMap,
   vec::Vec,
@@ -34,8 +32,8 @@ pub enum Ipld {
   Link(Cid),
 }
 
-impl sp_std::fmt::Debug for Ipld {
-  fn fmt(&self, f: &mut sp_std::fmt::Formatter) -> sp_std::fmt::Result {
+impl core::fmt::Debug for Ipld {
+  fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
     use Ipld::*;
     match self {
       Null => write!(f, "null"),
@@ -61,7 +59,7 @@ impl Ipld {
   pub fn references<E: Extend<Cid>>(&self, set: &mut E) {
     for ipld in self.iter() {
       if let Ipld::Link(cid) = ipld {
-        set.extend(sp_std::iter::once(cid.to_owned()));
+        set.extend(core::iter::once(cid.to_owned()));
       }
     }
   }
@@ -113,7 +111,6 @@ pub struct IpldIter<'a> {
 pub mod tests {
   use super::*;
   use crate::rand::Rng;
-  use alloc::vec;
   use quickcheck::{
     Arbitrary,
     Gen,
@@ -122,7 +119,7 @@ pub mod tests {
     Code,
     MultihashDigest,
   };
-  use sp_std::boxed::Box;
+  use alloc::boxed::Box;
 
   pub(crate) fn arbitrary_cid(g: &mut Gen) -> Cid {
     let mut bytes: [u8; 32] = [0; 32];

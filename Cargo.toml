@@ -1,6 +1,6 @@
 [package]
 name = "sp-ipld"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2018"
 authors = ["Samuel Burnham <sam@yatima.io>", "John Burnham <john@yatima.io>"]
 license = "MIT"
@@ -18,7 +18,6 @@ dag-cbor = ["multibase", "byteorder", "sp-multihash"]
 std = []
 
 [dependencies]
-sp-std = { version = "3", default-features = false }
 byteorder = { version = "1", default-features = false, optional = true }
 unsigned-varint = { version = "0.7.0", default-features = false }
 multibase = { version = "0.9.1", default-features = false, optional = true }
