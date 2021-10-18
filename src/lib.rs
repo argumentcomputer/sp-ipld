@@ -5,8 +5,9 @@
   clippy::missing_safety_doc
 )]
 #![cfg_attr(not(any(feature = "std", test)), no_std)]
+
+#[macro_use]
 extern crate alloc;
-extern crate sp_std;
 
 #[cfg(test)]
 extern crate quickcheck;

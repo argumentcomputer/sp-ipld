@@ -16,13 +16,16 @@ use byteorder::{
   ByteOrder,
 };
 use sp_cid::Cid;
-use sp_std::{
+use alloc::{
   collections::btree_map::BTreeMap,
+  vec::Vec,
+};
+
+use core::{
   convert::TryFrom,
   mem,
   ops::Deref,
-  vec::Vec,
-};
+}; 
 
 /// # Errors
 ///

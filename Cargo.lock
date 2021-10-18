@@ -1035,7 +1035,7 @@ dependencies = [
 
 [[package]]
 name = "sp-ipld"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "base64",
  "bytecursor",
@@ -1050,7 +1050,6 @@ dependencies = [
  "serde_json",
  "sp-cid",
  "sp-multihash",
- "sp-std",
  "tokio",
  "unsigned-varint",
 ]
